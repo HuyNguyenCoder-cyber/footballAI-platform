@@ -21,7 +21,7 @@
                 <div class="card-body">
                     <h2 class="h5">Matches</h2>
                     <p class="text-muted">Manage match schedule, teams, time, status, and logos.</p>
-                    <a class="btn btn-primary" th:href="@{/matches}">Go to Matches</a>
+                    <a class="btn btn-primary" th:href="@{/admin/matches}">Go to Matches</a>
                 </div>
             </div>
         </div>
@@ -30,7 +30,7 @@
                 <div class="card-body">
                     <h2 class="h5">Competitions</h2>
                     <p class="text-muted">Manage competition names and tournament records.</p>
-                    <a class="btn btn-primary" th:href="@{/competitions}">Go to Competitions</a>
+                    <a class="btn btn-primary" th:href="@{/admin/competitions}">Go to Competitions</a>
                 </div>
             </div>
         </div>
@@ -67,6 +67,60 @@
                     <h2 class="h5">Key Players</h2>
                     <p class="text-muted">Manage featured player cards for match analysis.</p>
                     <a class="btn btn-primary" th:href="@{/admin/key-players}">Go to Key Players</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="h5">Admin Users</h2>
+                    <p class="text-muted">Manage administrator accounts and access.</p>
+                    <a class="btn btn-primary" th:href="@{/admin/users}">Go to Users</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="h5">Team Recent Forms</h2>
+                    <p class="text-muted">Manage recent form statistics for home and away teams.</p>
+                    <a class="btn btn-primary" th:href="@{/admin/team-recent-forms}">Go to Team Recent Forms</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="h5">Head To Heads</h2>
+                    <p class="text-muted">Manage historical head to head data and analysis.</p>
+                    <a class="btn btn-primary" th:href="@{/admin/head-to-heads}">Go to Head To Heads</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="h5">Squad Analyses</h2>
+                    <p class="text-muted">Manage squad and lineup content for both teams.</p>
+                    <a class="btn btn-primary" th:href="@{/admin/squad-analyses}">Go to Squad Analyses</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="h5">Attack Analyses</h2>
+                    <p class="text-muted">Manage attacking strength comparison and insights.</p>
+                    <a class="btn btn-primary" th:href="@{/admin/attack-analyses}">Go to Attack Analyses</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="h5">Defense Analyses</h2>
+                    <p class="text-muted">Manage defensive strength comparison and insights.</p>
+                    <a class="btn btn-primary" th:href="@{/admin/defense-analyses}">Go to Defense Analyses</a>
                 </div>
             </div>
         </div>

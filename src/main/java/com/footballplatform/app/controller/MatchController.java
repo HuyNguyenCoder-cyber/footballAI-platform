@@ -3,11 +3,7 @@ package com.footballplatform.app.controller;
 import com.footballplatform.app.dto.MatchDTO;
 import com.footballplatform.app.entity.MatchStatus;
 import com.footballplatform.app.repository.CompetitionRepository;
-import com.footballplatform.app.service.BetRecommendationService;
-import com.footballplatform.app.service.KeyPlayerService;
-import com.footballplatform.app.service.MatchPredictionService;
 import com.footballplatform.app.service.MatchService;
-import com.footballplatform.app.service.PredictionModelService;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,28 +16,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/matches")
+@RequestMapping("/admin/matches")
 public class MatchController {
 
     private final MatchService matchService;
     private final CompetitionRepository competitionRepository;
-    private final MatchPredictionService matchPredictionService;
-    private final BetRecommendationService betRecommendationService;
-    private final PredictionModelService predictionModelService;
-    private final KeyPlayerService keyPlayerService;
 
-    public MatchController(MatchService matchService,
-                           CompetitionRepository competitionRepository,
-                           MatchPredictionService matchPredictionService,
-                           BetRecommendationService betRecommendationService,
-                           PredictionModelService predictionModelService,
-                           KeyPlayerService keyPlayerService) {
+    public MatchController(MatchService matchService, CompetitionRepository competitionRepository) {
         this.matchService = matchService;
         this.competitionRepository = competitionRepository;
-        this.matchPredictionService = matchPredictionService;
-        this.betRecommendationService = betRecommendationService;
-        this.predictionModelService = predictionModelService;
-        this.keyPlayerService = keyPlayerService;
     }
 
     @GetMapping
@@ -70,7 +53,7 @@ public class MatchController {
         try {
             matchService.create(match);
             redirectAttributes.addFlashAttribute("successMessage", "Match created successfully.");
-            return "redirect:/matches";
+            return "redirect:/admin/matches";
         } catch (RuntimeException ex) {
             System.out.println("Runtime error: " + ex.getMessage());
             addFormAttributes(model);
@@ -88,24 +71,7 @@ public class MatchController {
         } catch (RuntimeException ex) {
             System.out.println("Runtime error: " + ex.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
-            return "redirect:/matches";
-        }
-    }
-
-    @GetMapping("/{id}/analysis")
-    public String analysis(@PathVariable("id") Long id, Model model, RedirectAttributes redirectAttributes) {
-        try {
-            MatchDTO match = matchService.findById(id);
-            model.addAttribute("match", match);
-            model.addAttribute("prediction", matchPredictionService.findByMatchId(id).orElse(null));
-            model.addAttribute("betRecommendations", betRecommendationService.findByMatchId(id));
-            model.addAttribute("predictionModel", predictionModelService.findByMatchId(id).orElse(null));
-            model.addAttribute("keyPlayers", keyPlayerService.findByMatchId(id));
-            return "match/match-analysis-detail";
-        } catch (RuntimeException ex) {
-            System.out.println("Runtime error: " + ex.getMessage());
-            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
-            return "redirect:/matches";
+            return "redirect:/admin/matches";
         }
     }
 
@@ -125,7 +91,7 @@ public class MatchController {
         try {
             matchService.update(match);
             redirectAttributes.addFlashAttribute("successMessage", "Match updated successfully.");
-            return "redirect:/matches";
+            return "redirect:/admin/matches";
         } catch (RuntimeException ex) {
             System.out.println("Runtime error: " + ex.getMessage());
             addFormAttributes(model);
@@ -143,7 +109,7 @@ public class MatchController {
             System.out.println("Runtime error: " + ex.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
         }
-        return "redirect:/matches";
+        return "redirect:/admin/matches";
     }
 
     private void addFormAttributes(Model model) {

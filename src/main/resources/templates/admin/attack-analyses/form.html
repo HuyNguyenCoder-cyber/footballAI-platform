@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${attackAnalysis.id == null ? 'Create Attack Analysis' : 'Update Attack Analysis'}">Attack Analysis Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div th:replace="~{fragments/navigation :: dashboardNav('dashboard')}"></div>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <div class="mb-4">
+                        <h1 class="h4 mb-1" th:text="${attackAnalysis.id == null ? 'Create Attack Analysis' : 'Update Attack Analysis'}"></h1>
+                        <p class="text-muted mb-0">Manage attacking strength data for both teams.</p>
+                    </div>
+
+                    <div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+                    <form th:action="${attackAnalysis.id == null} ? @{/admin/attack-analyses/create} : @{/admin/attack-analyses/{id}/update(id=${attackAnalysis.id})}"
+                          th:object="${attackAnalysis}" method="post">
+                        <input type="hidden" th:field="*{id}">
+
+                        <div class="mb-3" th:if="${attackAnalysis.id == null}">
+                            <label class="form-label" for="matchId">Match</label>
+                            <select id="matchId" class="form-select" th:field="*{matchId}" th:classappend="${#fields.hasErrors('matchId')} ? 'is-invalid' : ''">
+                                <option value="">-- Select match --</option>
+                                <option th:each="match : ${matches}" th:value="${match.id}" th:text="${match.teamA + ' vs ' + match.teamB}"></option>
+                            </select>
+                            <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('matchId')}" th:errors="*{matchId}"></div>
+                        </div>
+
+                        <div class="mb-3" th:if="${attackAnalysis.id != null}">
+                            <label class="form-label" for="matchLabel">Match</label>
+                            <input id="matchLabel" type="text" class="form-control" th:value="${attackAnalysis.matchLabel}" readonly>
+                            <input type="hidden" th:field="*{matchId}">
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12"><h2 class="h6 fw-bold mb-3">Team A</h2></div>
+                            <div class="col-md-3 mb-3"><label class="form-label" for="teamAGoals">Goals</label><input id="teamAGoals" type="number" min="0" class="form-control" th:field="*{teamAGoals}" th:classappend="${#fields.hasErrors('teamAGoals')} ? 'is-invalid' : ''"><div class="invalid-feedback d-block" th:if="${#fields.hasErrors('teamAGoals')}" th:errors="*{teamAGoals}"></div></div>
+                            <div class="col-md-3 mb-3"><label class="form-label" for="teamAGoalsPerMatch">Goals / Match</label><input id="teamAGoalsPerMatch" type="number" min="0" step="0.01" class="form-control" th:field="*{teamAGoalsPerMatch}" th:classappend="${#fields.hasErrors('teamAGoalsPerMatch')} ? 'is-invalid' : ''"><div class="invalid-feedback d-block" th:if="${#fields.hasErrors('teamAGoalsPerMatch')}" th:errors="*{teamAGoalsPerMatch}"></div></div>
+                            <div class="col-md-3 mb-3"><label class="form-label" for="teamAScoringRate">Scoring Rate %</label><input id="teamAScoringRate" type="number" min="0" max="100" class="form-control" th:field="*{teamAScoringRate}" th:classappend="${#fields.hasErrors('teamAScoringRate')} ? 'is-invalid' : ''"><div class="invalid-feedback d-block" th:if="${#fields.hasErrors('teamAScoringRate')}" th:errors="*{teamAScoringRate}"></div></div>
+                            <div class="col-md-3 mb-3"><label class="form-label" for="teamAXgPerMatch">xG / Match</label><input id="teamAXgPerMatch" type="number" min="0" step="0.01" class="form-control" th:field="*{teamAXgPerMatch}" th:classappend="${#fields.hasErrors('teamAXgPerMatch')} ? 'is-invalid' : ''"><div class="invalid-feedback d-block" th:if="${#fields.hasErrors('teamAXgPerMatch')}" th:errors="*{teamAXgPerMatch}"></div></div>
+                            <div class="col-md-3 mb-3"><label class="form-label" for="teamABigChances">Big Chances</label><input id="teamABigChances" type="number" min="0" class="form-control" th:field="*{teamABigChances}" th:classappend="${#fields.hasErrors('teamABigChances')} ? 'is-invalid' : ''"><div class="invalid-feedback d-block" th:if="${#fields.hasErrors('teamABigChances')}" th:errors="*{teamABigChances}"></div></div>
+                            <div class="col-md-3 mb-3"><label class="form-label" for="teamAShotsPerMatch">Shots / Match</label><input id="teamAShotsPerMatch" type="number" min="0" step="0.01" class="form-control" th:field="*{teamAShotsPerMatch}" th:classappend="${#fields.hasErrors('teamAShotsPerMatch')} ? 'is-invalid' : ''"><div class="invalid-feedback d-block" th:if="${#fields.hasErrors('teamAShotsPerMatch')}" th:errors="*{teamAShotsPerMatch}"></div></div>
+                            <div class="col-md-3 mb-3"><label class="form-label" for="teamAConversionRate">Conversion Rate %</label><input id="teamAConversionRate" type="number" min="0" max="100" class="form-control" th:field="*{teamAConversionRate}" th:classappend="${#fields.hasErrors('teamAConversionRate')} ? 'is-invalid' : ''"><div class="invalid-feedback d-block" th:if="${#fields.hasErrors('teamAConversionRate')}" th:errors="*{teamAConversionRate}"></div></div>
+                            <div class="col-md-3 mb-3"><label class="form-label" for="teamAAttackIndex">Attack Index</label><input id="teamAAttackIndex" type="number" min="0" max="100" class="form-control" th:field="*{teamAAttackIndex}" th:classappend="${#fields.hasErrors('teamAAttackIndex')} ? 'is-invalid' : ''"><div class="invalid-feedback d-block" th:if="${#fields.hasErrors('teamAAttackIndex')}" th:errors="*{teamAAttackIndex}"></div></div>
+                        </div>
+
+                        <div class="row mt-2">
+                            <div class="col-12"><h2 class="h6 fw-bold mb-3">Team B</h2></div>
+                            <div class="col-md-3 mb-3"><label class="form-label" for="teamBGoals">Goals</label><input id="teamBGoals" type="number" min="0" class="form-control" th:field="*{teamBGoals}" th:classappend="${#fields.hasErrors('teamBGoals')} ? 'is-invalid' : ''"><div class="invalid-feedback d-block" th:if="${#fields.hasErrors('teamBGoals')}" th:errors="*{teamBGoals}"></div></div>
+                            <div class="col-md-3 mb-3"><label class="form-label" for="teamBGoalsPerMatch">Goals / Match</label><input id="teamBGoalsPerMatch" type="number" min="0" step="0.01" class="form-control" th:field="*{teamBGoalsPerMatch}" th:classappend="${#fields.hasErrors('teamBGoalsPerMatch')} ? 'is-invalid' : ''"><div class="invalid-feedback d-block" th:if="${#fields.hasErrors('teamBGoalsPerMatch')}" th:errors="*{teamBGoalsPerMatch}"></div></div>
+                            <div class="col-md-3 mb-3"><label class="form-label" for="teamBScoringRate">Scoring Rate %</label><input id="teamBScoringRate" type="number" min="0" max="100" class="form-control" th:field="*{teamBScoringRate}" th:classappend="${#fields.hasErrors('teamBScoringRate')} ? 'is-invalid' : ''"><div class="invalid-feedback d-block" th:if="${#fields.hasErrors('teamBScoringRate')}" th:errors="*{teamBScoringRate}"></div></div>
+                            <div class="col-md-3 mb-3"><label class="form-label" for="teamBXgPerMatch">xG / Match</label><input id="teamBXgPerMatch" type="number" min="0" step="0.01" class="form-control" th:field="*{teamBXgPerMatch}" th:classappend="${#fields.hasErrors('teamBXgPerMatch')} ? 'is-invalid' : ''"><div class="invalid-feedback d-block" th:if="${#fields.hasErrors('teamBXgPerMatch')}" th:errors="*{teamBXgPerMatch}"></div></div>
+                            <div class="col-md-3 mb-3"><label class="form-label" for="teamBBigChances">Big Chances</label><input id="teamBBigChances" type="number" min="0" class="form-control" th:field="*{teamBBigChances}" th:classappend="${#fields.hasErrors('teamBBigChances')} ? 'is-invalid' : ''"><div class="invalid-feedback d-block" th:if="${#fields.hasErrors('teamBBigChances')}" th:errors="*{teamBBigChances}"></div></div>
+                            <div class="col-md-3 mb-3"><label class="form-label" for="teamBShotsPerMatch">Shots / Match</label><input id="teamBShotsPerMatch" type="number" min="0" step="0.01" class="form-control" th:field="*{teamBShotsPerMatch}" th:classappend="${#fields.hasErrors('teamBShotsPerMatch')} ? 'is-invalid' : ''"><div class="invalid-feedback d-block" th:if="${#fields.hasErrors('teamBShotsPerMatch')}" th:errors="*{teamBShotsPerMatch}"></div></div>
+                            <div class="col-md-3 mb-3"><label class="form-label" for="teamBConversionRate">Conversion Rate %</label><input id="teamBConversionRate" type="number" min="0" max="100" class="form-control" th:field="*{teamBConversionRate}" th:classappend="${#fields.hasErrors('teamBConversionRate')} ? 'is-invalid' : ''"><div class="invalid-feedback d-block" th:if="${#fields.hasErrors('teamBConversionRate')}" th:errors="*{teamBConversionRate}"></div></div>
+                            <div class="col-md-3 mb-3"><label class="form-label" for="teamBAttackIndex">Attack Index</label><input id="teamBAttackIndex" type="number" min="0" max="100" class="form-control" th:field="*{teamBAttackIndex}" th:classappend="${#fields.hasErrors('teamBAttackIndex')} ? 'is-invalid' : ''"><div class="invalid-feedback d-block" th:if="${#fields.hasErrors('teamBAttackIndex')}" th:errors="*{teamBAttackIndex}"></div></div>
+                        </div>
+
+                        <div class="mb-3 mt-2">
+                            <label class="form-label" for="analysis">Attack Insight</label>
+                            <textarea id="analysis" rows="6" class="form-control" th:field="*{analysis}" th:classappend="${#fields.hasErrors('analysis')} ? 'is-invalid' : ''"></textarea>
+                            <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('analysis')}" th:errors="*{analysis}"></div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary" th:text="${attackAnalysis.id == null ? 'Create' : 'Update'}">Create</button>
+                            <a class="btn btn-outline-secondary" th:href="@{/admin/attack-analyses}">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

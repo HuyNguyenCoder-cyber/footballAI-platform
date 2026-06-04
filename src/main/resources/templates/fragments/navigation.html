@@ -15,11 +15,18 @@
                th:href="@{/admin/dashboard}">Dashboard</a>
             <a class="btn btn-sm"
                th:classappend="${activePage == 'matches'} ? 'btn-primary' : 'btn-outline-secondary'"
-               th:href="@{/matches}">Matches</a>
+               th:href="@{/admin/matches}">Matches</a>
             <a class="btn btn-sm"
                th:classappend="${activePage == 'competitions'} ? 'btn-primary' : 'btn-outline-secondary'"
-               th:href="@{/competitions}">Competitions</a>
+               th:href="@{/admin/competitions}">Competitions</a>
+            <a class="btn btn-sm"
+               th:classappend="${activePage == 'users'} ? 'btn-primary' : 'btn-outline-secondary'"
+               th:href="@{/admin/users}">Users</a>
         </nav>
+
+        <form th:action="@{/logout}" method="post" class="m-0">
+            <button type="submit" class="btn btn-sm btn-outline-danger">Logout</button>
+        </form>
     </div>
 </div>
 </body>

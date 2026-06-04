@@ -58,6 +58,13 @@
             <version>3.5.0</version>
         </dependency>
 
+        <!-- Security -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+            <version>3.5.0</version>
+        </dependency>
+
         <!-- SQL Server -->
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>

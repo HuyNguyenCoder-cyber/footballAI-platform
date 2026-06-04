@@ -14,7 +14,7 @@
             <h1 class="h3 mb-1">Match Management</h1>
             <p class="text-muted mb-0">List, create, update, and delete matches.</p>
         </div>
-        <a class="btn btn-primary" th:href="@{/matches/new}">New Match</a>
+        <a class="btn btn-primary" th:href="@{/admin/matches/new}">New Match</a>
     </div>
 
     <div class="alert alert-success" th:if="${successMessage}" th:text="${successMessage}"></div>
@@ -63,8 +63,8 @@
                         <td th:text="${match.status}"></td>
                         <td>
                             <a class="btn btn-sm btn-outline-secondary me-2"
-                               th:href="@{/matches/{id}/edit(id=${match.id})}">Edit</a>
-                            <form th:action="@{/matches/{id}/delete(id=${match.id})}"
+                               th:href="@{/admin/matches/{id}/edit(id=${match.id})}">Edit</a>
+                            <form th:action="@{/admin/matches/{id}/delete(id=${match.id})}"
                                   method="post"
                                   class="d-inline"
                                   onsubmit="return confirm('Delete this match?');">

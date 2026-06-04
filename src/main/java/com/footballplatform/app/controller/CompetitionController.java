@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/competitions")
+@RequestMapping("/admin/competitions")
 public class CompetitionController {
 
     private final CompetitionService competitionService;
@@ -47,7 +47,7 @@ public class CompetitionController {
         try {
             competitionService.create(competition);
             redirectAttributes.addFlashAttribute("successMessage", "Competition created successfully.");
-            return "redirect:/competitions";
+            return "redirect:/admin/competitions";
         } catch (RuntimeException ex) {
             System.out.println("Runtime error: " + ex.getMessage());
             model.addAttribute("errorMessage", ex.getMessage());
@@ -63,7 +63,7 @@ public class CompetitionController {
         } catch (RuntimeException ex) {
             System.out.println("Runtime error: " + ex.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
-            return "redirect:/competitions";
+            return "redirect:/admin/competitions";
         }
     }
 
@@ -82,7 +82,7 @@ public class CompetitionController {
         try {
             competitionService.update(competition);
             redirectAttributes.addFlashAttribute("successMessage", "Competition updated successfully.");
-            return "redirect:/competitions";
+            return "redirect:/admin/competitions";
         } catch (RuntimeException ex) {
             System.out.println("Runtime error: " + ex.getMessage());
             model.addAttribute("errorMessage", ex.getMessage());
@@ -99,6 +99,6 @@ public class CompetitionController {
             System.out.println("Runtime error: " + ex.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
         }
-        return "redirect:/competitions";
+        return "redirect:/admin/competitions";
     }
 }

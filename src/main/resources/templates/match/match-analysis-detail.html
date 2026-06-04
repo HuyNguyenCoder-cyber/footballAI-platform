@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Match Analysis Detail</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --page-bg: #f4f7fb;
@@ -49,6 +50,28 @@
             border: 1px solid var(--card-border);
             border-radius: 16px;
             background: #ffffff;
+        }
+
+        .stat-card {
+            min-height: 100px;
+        }
+
+        .stat-card .stat-label {
+            min-height: 32px;
+        }
+
+        .recent-matches-box {
+            white-space: pre-line;
+            min-height: 120px;
+        }
+
+        .analysis-box {
+            white-space: pre-line;
+        }
+
+        .chart-shell {
+            position: relative;
+            min-height: 320px;
         }
 
         .team-mark {
@@ -336,6 +359,381 @@
             </div>
         </div>
     </section>
+
+    <section class="info-card p-4 p-md-5 mt-4">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+            <div>
+                <div class="section-label mb-1">Team Recent Form</div>
+                <h3 class="h5 fw-bold mb-0">Team Recent Form</h3>
+            </div>
+            <span class="badge rounded-pill bg-light text-secondary border px-3 py-2">Home and away recent form</span>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-12 col-lg-6">
+                <div class="mini-card h-100 p-4">
+                    <div class="section-label mb-1">Home Team Form</div>
+                    <h4 class="h6 fw-bold mb-3" th:text="${match.teamA}">Home Team</h4>
+
+                    <div class="mb-4">
+                        <div class="small fw-semibold text-secondary mb-2">Recent Matches</div>
+                        <div class="rounded-3 border bg-light p-3 recent-matches-box"
+                             th:text="${homeTeamForm != null ? homeTeamForm.recentMatchesText : 'No recent form data available.'}">
+                            W 2-0 Team X
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4" th:if="${homeTeamForm != null}">
+                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Wins</div><div class="fw-bold fs-5" th:text="${homeTeamForm.wins}">0</div></div></div>
+                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Draws</div><div class="fw-bold fs-5" th:text="${homeTeamForm.draws}">0</div></div></div>
+                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Losses</div><div class="fw-bold fs-5" th:text="${homeTeamForm.losses}">0</div></div></div>
+                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Goals Scored</div><div class="fw-bold fs-5" th:text="${homeTeamForm.goalsScored}">0</div></div></div>
+                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Goals Conceded</div><div class="fw-bold fs-5" th:text="${homeTeamForm.goalsConceded}">0</div></div></div>
+                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Clean Sheets</div><div class="fw-bold fs-5" th:text="${homeTeamForm.cleanSheets}">0</div></div></div>
+                    </div>
+
+                    <div th:if="${homeTeamForm != null}">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between small fw-semibold mb-2"><span>Win Rate</span><span th:text="${homeTeamForm.winRate + '%'}">0%</span></div>
+                            <div class="progress" style="height: 10px;"><div class="progress-bar bg-success" th:style="${'width: ' + homeTeamForm.winRate + '%;'}"></div></div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between small fw-semibold mb-2"><span>Clean Sheet Rate</span><span th:text="${homeTeamForm.cleanSheetRate + '%'}">0%</span></div>
+                            <div class="progress" style="height: 10px;"><div class="progress-bar bg-info" th:style="${'width: ' + homeTeamForm.cleanSheetRate + '%;'}"></div></div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between small fw-semibold mb-2"><span>Scoring Rate</span><span th:text="${homeTeamForm.scoringRate + '%'}">0%</span></div>
+                            <div class="progress" style="height: 10px;"><div class="progress-bar bg-primary" th:style="${'width: ' + homeTeamForm.scoringRate + '%;'}"></div></div>
+                        </div>
+                        <div>
+                            <div class="d-flex justify-content-between small fw-semibold mb-2"><span>Conceding Rate</span><span th:text="${homeTeamForm.concedingRate + '%'}">0%</span></div>
+                            <div class="progress" style="height: 10px;"><div class="progress-bar bg-warning" th:style="${'width: ' + homeTeamForm.concedingRate + '%;'}"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-6">
+                <div class="mini-card h-100 p-4">
+                    <div class="section-label mb-1">Away Team Form</div>
+                    <h4 class="h6 fw-bold mb-3" th:text="${match.teamB}">Away Team</h4>
+
+                    <div class="mb-4">
+                        <div class="small fw-semibold text-secondary mb-2">Recent Matches</div>
+                        <div class="rounded-3 border bg-light p-3 recent-matches-box"
+                             th:text="${awayTeamForm != null ? awayTeamForm.recentMatchesText : 'No recent form data available.'}">
+                            W 2-0 Team X
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4" th:if="${awayTeamForm != null}">
+                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Wins</div><div class="fw-bold fs-5" th:text="${awayTeamForm.wins}">0</div></div></div>
+                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Draws</div><div class="fw-bold fs-5" th:text="${awayTeamForm.draws}">0</div></div></div>
+                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Losses</div><div class="fw-bold fs-5" th:text="${awayTeamForm.losses}">0</div></div></div>
+                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Goals Scored</div><div class="fw-bold fs-5" th:text="${awayTeamForm.goalsScored}">0</div></div></div>
+                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Goals Conceded</div><div class="fw-bold fs-5" th:text="${awayTeamForm.goalsConceded}">0</div></div></div>
+                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Clean Sheets</div><div class="fw-bold fs-5" th:text="${awayTeamForm.cleanSheets}">0</div></div></div>
+                    </div>
+
+                    <div th:if="${awayTeamForm != null}">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between small fw-semibold mb-2"><span>Win Rate</span><span th:text="${awayTeamForm.winRate + '%'}">0%</span></div>
+                            <div class="progress" style="height: 10px;"><div class="progress-bar bg-success" th:style="${'width: ' + awayTeamForm.winRate + '%;'}"></div></div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between small fw-semibold mb-2"><span>Clean Sheet Rate</span><span th:text="${awayTeamForm.cleanSheetRate + '%'}">0%</span></div>
+                            <div class="progress" style="height: 10px;"><div class="progress-bar bg-info" th:style="${'width: ' + awayTeamForm.cleanSheetRate + '%;'}"></div></div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between small fw-semibold mb-2"><span>Scoring Rate</span><span th:text="${awayTeamForm.scoringRate + '%'}">0%</span></div>
+                            <div class="progress" style="height: 10px;"><div class="progress-bar bg-primary" th:style="${'width: ' + awayTeamForm.scoringRate + '%;'}"></div></div>
+                        </div>
+                        <div>
+                            <div class="d-flex justify-content-between small fw-semibold mb-2"><span>Conceding Rate</span><span th:text="${awayTeamForm.concedingRate + '%'}">0%</span></div>
+                            <div class="progress" style="height: 10px;"><div class="progress-bar bg-warning" th:style="${'width: ' + awayTeamForm.concedingRate + '%;'}"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="info-card p-4 p-md-5 mt-4">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+            <div>
+                <div class="section-label mb-1">Head To Head</div>
+                <h3 class="h5 fw-bold mb-0">Head To Head</h3>
+            </div>
+            <span class="badge rounded-pill bg-light text-secondary border px-3 py-2">Historical matchup data</span>
+        </div>
+
+        <div class="mb-4">
+            <div class="small fw-semibold text-secondary mb-2">Recent H2H Matches</div>
+            <div class="rounded-3 border bg-light p-3 recent-matches-box"
+                 th:text="${headToHead != null ? headToHead.h2hMatchesText : 'No head to head data available.'}">
+                Match result history
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4" th:if="${headToHead != null}">
+            <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Total Matches</div><div class="fw-bold fs-5" th:text="${headToHead.totalMatches}">0</div></div></div>
+            <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center" th:text="${match.teamA + ' Wins'}">Team A Wins</div><div class="fw-bold fs-5" th:text="${headToHead.teamAWins}">0</div></div></div>
+            <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Draws</div><div class="fw-bold fs-5" th:text="${headToHead.draws}">0</div></div></div>
+            <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center" th:text="${match.teamB + ' Wins'}">Team B Wins</div><div class="fw-bold fs-5" th:text="${headToHead.teamBWins}">0</div></div></div>
+            <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center" th:text="${match.teamA + ' Goals'}">Team A Goals</div><div class="fw-bold fs-5" th:text="${headToHead.teamAGoals}">0</div></div></div>
+            <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center" th:text="${match.teamB + ' Goals'}">Team B Goals</div><div class="fw-bold fs-5" th:text="${headToHead.teamBGoals}">0</div></div></div>
+            <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Total Goals</div><div class="fw-bold fs-5" th:text="${headToHead.totalGoals}">0</div></div></div>
+            <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Average Goals Per Match</div><div class="fw-bold fs-5" th:text="${headToHead.averageGoalsPerMatch}">0</div></div></div>
+            <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center" th:text="${match.teamA + ' Clean Sheets'}">Team A Clean Sheets</div><div class="fw-bold fs-5" th:text="${headToHead.teamACleanSheets}">0</div></div></div>
+            <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center" th:text="${match.teamB + ' Clean Sheets'}">Team B Clean Sheets</div><div class="fw-bold fs-5" th:text="${headToHead.teamBCleanSheets}">0</div></div></div>
+        </div>
+
+        <div class="rounded-3 border bg-light p-4">
+            <div class="section-label mb-2">Head To Head Analysis</div>
+            <div class="analysis-box text-secondary"
+                 th:text="${headToHead != null ? headToHead.analysis : 'No head to head analysis available.'}">
+                Recent Trend:
+            </div>
+        </div>
+    </section>
+
+    <section class="info-card p-4 p-md-5 mt-4">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+            <div>
+                <div class="section-label mb-1">Squad & Lineup</div>
+                <h3 class="h5 fw-bold mb-0">Squad & Lineup</h3>
+            </div>
+            <span class="badge rounded-pill bg-light text-secondary border px-3 py-2">Squad status and expected lineup</span>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-12 col-lg-6">
+                <div class="mini-card h-100 p-4">
+                    <div class="section-label mb-1">Team A</div>
+                    <h4 class="h6 fw-bold mb-3" th:text="${match.teamA}">Team A</h4>
+                    <div class="analysis-box text-secondary"
+                         th:text="${squadAnalysis != null ? squadAnalysis.teamAContent : 'No squad analysis available.'}">
+                        Injuries:
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-6">
+                <div class="mini-card h-100 p-4">
+                    <div class="section-label mb-1">Team B</div>
+                    <h4 class="h6 fw-bold mb-3" th:text="${match.teamB}">Team B</h4>
+                    <div class="analysis-box text-secondary"
+                         th:text="${squadAnalysis != null ? squadAnalysis.teamBContent : 'No squad analysis available.'}">
+                        Injuries:
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="info-card p-4 p-md-5 mt-4">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+            <div>
+                <div class="section-label mb-1">Attack Analysis</div>
+                <h3 class="h5 fw-bold mb-0">Attack Analysis</h3>
+            </div>
+            <span class="badge rounded-pill bg-light text-secondary border px-3 py-2">Attacking strength comparison</span>
+        </div>
+
+        <div class="mb-4">
+            <div class="section-label mb-2">Attack Comparison Chart</div>
+            <div class="chart-shell">
+                <canvas id="attackComparisonChart"></canvas>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4" th:if="${attackAnalysis != null}">
+            <div class="col-12 col-md-6">
+                <div class="mini-card h-100 p-4">
+                    <div class="section-label mb-2">Attack Statistics</div>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <tbody>
+                            <tr><th>Goals</th><td th:text="${attackAnalysis.teamAGoals + ' vs ' + attackAnalysis.teamBGoals}">12 vs 18</td></tr>
+                            <tr><th>Goals Per Match</th><td th:text="${attackAnalysis.teamAGoalsPerMatch + ' vs ' + attackAnalysis.teamBGoalsPerMatch}">1.2 vs 1.8</td></tr>
+                            <tr><th>xG Per Match</th><td th:text="${attackAnalysis.teamAXgPerMatch + ' vs ' + attackAnalysis.teamBXgPerMatch}">1.9 vs 2.7</td></tr>
+                            <tr><th>Big Chances</th><td th:text="${attackAnalysis.teamABigChances + ' vs ' + attackAnalysis.teamBBigChances}">14 vs 22</td></tr>
+                            <tr><th>Shots Per Match</th><td th:text="${attackAnalysis.teamAShotsPerMatch + ' vs ' + attackAnalysis.teamBShotsPerMatch}">13 vs 17</td></tr>
+                            <tr><th>Conversion Rate</th><td th:text="${attackAnalysis.teamAConversionRate + '% vs ' + attackAnalysis.teamBConversionRate + '%'}">14% vs 17%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <div class="mini-card h-100 p-4">
+                    <div class="section-label mb-2">Attack Insight</div>
+                    <div class="analysis-box text-secondary" th:text="${attackAnalysis.analysis}">
+                        Key Attacking Patterns:
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mini-card p-4 text-secondary" th:if="${attackAnalysis == null}">
+            No attack analysis data available.
+        </div>
+    </section>
+
+    <section class="info-card p-4 p-md-5 mt-4">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+            <div>
+                <div class="section-label mb-1">Defense Analysis</div>
+                <h3 class="h5 fw-bold mb-0">Defense Analysis</h3>
+            </div>
+            <span class="badge rounded-pill bg-light text-secondary border px-3 py-2">Defensive strength comparison</span>
+        </div>
+
+        <div class="mb-4">
+            <div class="section-label mb-2">Defense Comparison Chart</div>
+            <div class="chart-shell">
+                <canvas id="defenseComparisonChart"></canvas>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4" th:if="${defenseAnalysis != null}">
+            <div class="col-12 col-md-6">
+                <div class="mini-card h-100 p-4">
+                    <div class="section-label mb-2">Defense Statistics</div>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <tbody>
+                            <tr><th>Goals Conceded</th><td th:text="${defenseAnalysis.teamAGoalsConceded + ' vs ' + defenseAnalysis.teamBGoalsConceded}">6 vs 10</td></tr>
+                            <tr><th>Goals Conceded Per Match</th><td th:text="${defenseAnalysis.teamAGoalsConcededPerMatch + ' vs ' + defenseAnalysis.teamBGoalsConcededPerMatch}">0.6 vs 1.0</td></tr>
+                            <tr><th>Clean Sheets</th><td th:text="${defenseAnalysis.teamACleanSheets + ' vs ' + defenseAnalysis.teamBCleanSheets}">4 vs 2</td></tr>
+                            <tr><th>xGA Per Match</th><td th:text="${defenseAnalysis.teamAXgaPerMatch + ' vs ' + defenseAnalysis.teamBXgaPerMatch}">0.9 vs 1.3</td></tr>
+                            <tr><th>Shots Conceded Per Match</th><td th:text="${defenseAnalysis.teamAShotsConcededPerMatch + ' vs ' + defenseAnalysis.teamBShotsConcededPerMatch}">8 vs 12</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <div class="mini-card h-100 p-4">
+                    <div class="section-label mb-2">Defense Insight</div>
+                    <div class="analysis-box text-secondary" th:text="${defenseAnalysis.analysis}">
+                        Defensive Stability:
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mini-card p-4 text-secondary" th:if="${defenseAnalysis == null}">
+            No defense analysis data available.
+        </div>
+    </section>
 </main>
+<script th:inline="javascript">
+    const attackLabels = ['Attack Index', 'Win Rate', 'Scoring Rate'];
+    const teamAName = /*[[${match.teamA}]]*/ 'Team A';
+    const teamBName = /*[[${match.teamB}]]*/ 'Team B';
+    const teamAValues = [
+        /*[[${attackAnalysis != null ? attackAnalysis.teamAAttackIndex : 0}]]*/ 0,
+        /*[[${homeTeamForm != null ? homeTeamForm.winRate : 0}]]*/ 0,
+        /*[[${attackAnalysis != null ? attackAnalysis.teamAScoringRate : 0}]]*/ 0
+    ];
+    const teamBValues = [
+        /*[[${attackAnalysis != null ? attackAnalysis.teamBAttackIndex : 0}]]*/ 0,
+        /*[[${awayTeamForm != null ? awayTeamForm.winRate : 0}]]*/ 0,
+        /*[[${attackAnalysis != null ? attackAnalysis.teamBScoringRate : 0}]]*/ 0
+    ];
+
+    const attackChartCanvas = document.getElementById('attackComparisonChart');
+    if (attackChartCanvas) {
+        new Chart(attackChartCanvas, {
+            type: 'bar',
+            data: {
+                labels: attackLabels,
+                datasets: [
+                    {
+                        label: teamAName,
+                        data: teamAValues,
+                        backgroundColor: '#dc3545',
+                        borderRadius: 8
+                    },
+                    {
+                        label: teamBName,
+                        data: teamBValues,
+                        backgroundColor: '#0d6efd',
+                        borderRadius: 8
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    const defenseLabels = ['Defence Index', 'Clean Sheet Rate', 'Conceding Rate'];
+    const defenseTeamAValues = [
+        /*[[${defenseAnalysis != null ? defenseAnalysis.teamADefenceIndex : 0}]]*/ 0,
+        /*[[${defenseAnalysis != null ? defenseAnalysis.teamACleanSheetRate : 0}]]*/ 0,
+        /*[[${defenseAnalysis != null ? defenseAnalysis.teamAConcedingRate : 0}]]*/ 0
+    ];
+    const defenseTeamBValues = [
+        /*[[${defenseAnalysis != null ? defenseAnalysis.teamBDefenceIndex : 0}]]*/ 0,
+        /*[[${defenseAnalysis != null ? defenseAnalysis.teamBCleanSheetRate : 0}]]*/ 0,
+        /*[[${defenseAnalysis != null ? defenseAnalysis.teamBConcedingRate : 0}]]*/ 0
+    ];
+
+    const defenseChartCanvas = document.getElementById('defenseComparisonChart');
+    if (defenseChartCanvas) {
+        new Chart(defenseChartCanvas, {
+            type: 'bar',
+            data: {
+                labels: defenseLabels,
+                datasets: [
+                    {
+                        label: teamAName,
+                        data: defenseTeamAValues,
+                        backgroundColor: '#198754',
+                        borderRadius: 8
+                    },
+                    {
+                        label: teamBName,
+                        data: defenseTeamBValues,
+                        backgroundColor: '#fd7e14',
+                        borderRadius: 8
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+</script>
 </body>
 </html>

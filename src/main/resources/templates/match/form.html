@@ -20,7 +20,7 @@
 
                     <div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}"></div>
 
-                    <form th:action="${match.id == null} ? @{/matches/create} : @{/matches/{id}/update(id=${match.id})}"
+                    <form th:action="${match.id == null} ? @{/admin/matches/create} : @{/admin/matches/{id}/update(id=${match.id})}"
                           th:object="${match}"
                           method="post"
                           enctype="multipart/form-data">
@@ -107,7 +107,7 @@
                             <button type="submit" class="btn btn-primary">
                                 <span th:text="${match.id == null ? 'Create' : 'Update'}"></span>
                             </button>
-                            <a class="btn btn-outline-secondary" th:href="@{/matches}">Cancel</a>
+                            <a class="btn btn-outline-secondary" th:href="@{/admin/matches}">Cancel</a>
                         </div>
                     </form>
                 </div>

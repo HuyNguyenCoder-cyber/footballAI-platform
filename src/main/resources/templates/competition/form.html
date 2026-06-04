@@ -20,7 +20,7 @@
 
                     <div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}"></div>
 
-                    <form th:action="${competition.id == null} ? @{/competitions/create} : @{/competitions/{id}/update(id=${competition.id})}"
+                    <form th:action="${competition.id == null} ? @{/admin/competitions/create} : @{/admin/competitions/{id}/update(id=${competition.id})}"
                           th:object="${competition}"
                           method="post">
                         <input type="hidden" th:field="*{id}">
@@ -40,7 +40,7 @@
                             <button type="submit" class="btn btn-primary">
                                 <span th:text="${competition.id == null ? 'Create' : 'Update'}"></span>
                             </button>
-                            <a class="btn btn-outline-secondary" th:href="@{/competitions}">Cancel</a>
+                            <a class="btn btn-outline-secondary" th:href="@{/admin/competitions}">Cancel</a>
                         </div>
                     </form>
                 </div>
