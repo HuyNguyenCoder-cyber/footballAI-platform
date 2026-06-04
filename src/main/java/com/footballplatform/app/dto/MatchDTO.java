@@ -1,5 +1,6 @@
 package com.footballplatform.app.dto;
 
+import com.footballplatform.app.dto.CompetitionDTO;
 import com.footballplatform.app.entity.MatchStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -51,4 +52,6 @@ public class MatchDTO {
     private Long competitionId;
 
     private String competitionName;
+
+    private CompetitionDTO competition;
 }

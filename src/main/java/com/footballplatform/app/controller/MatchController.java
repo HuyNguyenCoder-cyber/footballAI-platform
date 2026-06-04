@@ -3,7 +3,11 @@ package com.footballplatform.app.controller;
 import com.footballplatform.app.dto.MatchDTO;
 import com.footballplatform.app.entity.MatchStatus;
 import com.footballplatform.app.repository.CompetitionRepository;
+import com.footballplatform.app.service.BetRecommendationService;
+import com.footballplatform.app.service.KeyPlayerService;
+import com.footballplatform.app.service.MatchPredictionService;
 import com.footballplatform.app.service.MatchService;
+import com.footballplatform.app.service.PredictionModelService;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,10 +25,23 @@ public class MatchController {
 
     private final MatchService matchService;
     private final CompetitionRepository competitionRepository;
+    private final MatchPredictionService matchPredictionService;
+    private final BetRecommendationService betRecommendationService;
+    private final PredictionModelService predictionModelService;
+    private final KeyPlayerService keyPlayerService;
 
-    public MatchController(MatchService matchService, CompetitionRepository competitionRepository) {
+    public MatchController(MatchService matchService,
+                           CompetitionRepository competitionRepository,
+                           MatchPredictionService matchPredictionService,
+                           BetRecommendationService betRecommendationService,
+                           PredictionModelService predictionModelService,
+                           KeyPlayerService keyPlayerService) {
         this.matchService = matchService;
         this.competitionRepository = competitionRepository;
+        this.matchPredictionService = matchPredictionService;
+        this.betRecommendationService = betRecommendationService;
+        this.predictionModelService = predictionModelService;
+        this.keyPlayerService = keyPlayerService;
     }
 
     @GetMapping
@@ -68,6 +85,23 @@ public class MatchController {
             addFormAttributes(model);
             model.addAttribute("match", matchService.findById(id));
             return "match/form";
+        } catch (RuntimeException ex) {
+            System.out.println("Runtime error: " + ex.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+            return "redirect:/matches";
+        }
+    }
+
+    @GetMapping("/{id}/analysis")
+    public String analysis(@PathVariable("id") Long id, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            MatchDTO match = matchService.findById(id);
+            model.addAttribute("match", match);
+            model.addAttribute("prediction", matchPredictionService.findByMatchId(id).orElse(null));
+            model.addAttribute("betRecommendations", betRecommendationService.findByMatchId(id));
+            model.addAttribute("predictionModel", predictionModelService.findByMatchId(id).orElse(null));
+            model.addAttribute("keyPlayers", keyPlayerService.findByMatchId(id));
+            return "match/match-analysis-detail";
         } catch (RuntimeException ex) {
             System.out.println("Runtime error: " + ex.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());

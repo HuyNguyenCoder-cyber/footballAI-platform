@@ -37,8 +37,11 @@ public class CompetitionServiceImpl implements CompetitionService {
 
     @Override
     public CompetitionDTO create(CompetitionDTO dto) {
+        String normalizedName = normalizeName(dto.getName());
+        ensureNameNotDuplicate(normalizedName, null);
+
         Competition competition = new Competition();
-        competition.setName(dto.getName().trim());
+        competition.setName(normalizedName);
         return toDto(competitionRepository.save(competition));
     }
 
@@ -47,7 +50,10 @@ public class CompetitionServiceImpl implements CompetitionService {
         Competition competition = competitionRepository.findById(dto.getId())
                 .orElseThrow(() -> new RuntimeException("Competition not found with id: " + dto.getId()));
 
-        competition.setName(dto.getName().trim());
+        String normalizedName = normalizeName(dto.getName());
+        ensureNameNotDuplicate(normalizedName, competition.getId());
+
+        competition.setName(normalizedName);
         return toDto(competitionRepository.save(competition));
     }
 
@@ -64,5 +70,18 @@ public class CompetitionServiceImpl implements CompetitionService {
                 .id(competition.getId())
                 .name(competition.getName())
                 .build();
+    }
+
+    private String normalizeName(String name) {
+        return name == null ? null : name.trim();
+    }
+
+    private void ensureNameNotDuplicate(String name, Long currentId) {
+        competitionRepository.findByNameIgnoreCase(name)
+                .ifPresent(existing -> {
+                    if (currentId == null || !existing.getId().equals(currentId)) {
+                        throw new RuntimeException("Competition name already exists: " + name);
+                    }
+                });
     }
 }

@@ -1,8 +1,10 @@
 package com.footballplatform.app.service.impl;
 
+import com.footballplatform.app.dto.CompetitionDTO;
 import com.footballplatform.app.dto.MatchDTO;
 import com.footballplatform.app.entity.Competition;
 import com.footballplatform.app.entity.Match;
+import com.footballplatform.app.entity.MatchStatus;
 import com.footballplatform.app.repository.CompetitionRepository;
 import com.footballplatform.app.repository.MatchRepository;
 import com.footballplatform.app.service.MatchService;
@@ -43,6 +45,15 @@ public class MatchServiceImpl implements MatchService {
     @Transactional(readOnly = true)
     public List<MatchDTO> findAll() {
         return matchRepository.findAll()
+                .stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MatchDTO> findByStatuses(List<MatchStatus> statuses) {
+        return matchRepository.findByStatusInOrderByMatchTimeAsc(statuses)
                 .stream()
                 .map(this::toDto)
                 .toList();
@@ -103,6 +114,10 @@ public class MatchServiceImpl implements MatchService {
                 .status(match.getStatus())
                 .competitionId(match.getCompetition() != null ? match.getCompetition().getId() : null)
                 .competitionName(match.getCompetition() != null ? match.getCompetition().getName() : null)
+                .competition(match.getCompetition() == null ? null : CompetitionDTO.builder()
+                        .id(match.getCompetition().getId())
+                        .name(match.getCompetition().getName())
+                        .build())
                 .build();
     }
 
