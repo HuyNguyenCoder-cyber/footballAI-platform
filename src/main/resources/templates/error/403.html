@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 - Không có quyền truy cập</title>
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
+</head>
+<body class="bg-light">
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-4 p-md-5 text-center">
+                    <div class="text-uppercase text-secondary small fw-semibold mb-2">403 Error</div>
+                    <h1 class="display-6 fw-bold mb-3">Bạn không có quyền truy cập</h1>
+                    <p class="text-secondary mb-4">
+                        Trang này chỉ dành cho tài khoản quản trị phù hợp. Vui lòng quay lại khu vực công khai hoặc đăng nhập bằng tài khoản được cấp quyền.
+                    </p>
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <a class="btn btn-primary px-4" th:href="@{/home}">Về trang Home</a>
+                        <a class="btn btn-outline-secondary px-4" th:href="@{/login}">Đăng nhập</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

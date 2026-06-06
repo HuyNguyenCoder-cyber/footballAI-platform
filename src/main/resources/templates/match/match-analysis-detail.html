@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Match Analysis Detail</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Phân tích trận đấu</title>
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -37,6 +37,80 @@
 
         .prediction-card {
             background: #ffffff;
+        }
+
+        .prediction-card__hero {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .prediction-card__icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(13, 110, 253, 0.14), rgba(13, 110, 253, 0.04));
+            font-size: 1.35rem;
+        }
+
+        .prediction-card__subtitle {
+            color: #6b7280;
+            font-size: 0.95rem;
+            margin-top: 0.25rem;
+        }
+
+        .prediction-badge {
+            font-weight: 700;
+            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
+        }
+
+        .prediction-stat-card {
+            border-color: #e3e8ef !important;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        }
+
+        .prediction-stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.1);
+            border-color: #d6dde8 !important;
+        }
+
+        .prediction-score {
+            font-size: clamp(2.35rem, 5vw, 3.4rem);
+            line-height: 1;
+            letter-spacing: -0.04em;
+        }
+
+        .prediction-score__icon {
+            font-size: 1.25rem;
+            margin-right: 0.45rem;
+            vertical-align: middle;
+        }
+
+        .prediction-bet-card {
+            background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+        }
+
+        .prediction-bet-card__title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+        }
+
+        .prediction-bet-card__recommendation {
+            font-size: 0.98rem;
+            line-height: 1.5;
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        .prediction-confidence-panel {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, #f8fafc 100%);
         }
 
         .info-card {
@@ -72,6 +146,40 @@
         .chart-shell {
             position: relative;
             min-height: 320px;
+        }
+
+        .tab-nav-shell {
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+        }
+
+        .analysis-tabs {
+            flex-wrap: nowrap;
+            min-width: max-content;
+            gap: 0.5rem;
+        }
+
+        .analysis-tabs .nav-link {
+            border: 1px solid var(--card-border);
+            border-radius: 999px;
+            color: #475569;
+            background: #ffffff;
+            padding: 0.75rem 1.1rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .analysis-tabs .nav-link.active {
+            background: #0d6efd;
+            border-color: #0d6efd;
+            color: #ffffff;
+            box-shadow: 0 8px 18px rgba(13, 110, 253, 0.18);
+        }
+
+        .tab-panel-stack > section:first-child {
+            margin-top: 0;
         }
 
         .team-mark {
@@ -149,6 +257,106 @@
             flex: 0 0 auto;
         }
 
+        .ai-insight-floating {
+            position: fixed;
+            right: 1.25rem;
+            bottom: 1.25rem;
+            display: flex;
+            align-items: end;
+            gap: 0.75rem;
+            z-index: 1040;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+            cursor: grab;
+        }
+
+        .ai-insight-floating.dragging {
+            cursor: grabbing;
+        }
+
+        .ai-insight-bubble {
+            max-width: 300px;
+            border: 1px solid rgba(13, 110, 253, 0.14);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.97);
+            box-shadow: 0 16px 36px rgba(15, 23, 42, 0.16);
+            padding: 0.95rem 1rem;
+            text-align: left;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        .ai-insight-bubble:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.2);
+            border-color: rgba(13, 110, 253, 0.28);
+        }
+
+        .ai-insight-bubble__label {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.35rem;
+        }
+
+        .ai-insight-bubble__preview {
+            color: #475569;
+            font-size: 0.92rem;
+            line-height: 1.45;
+            margin-bottom: 0.45rem;
+        }
+
+        .ai-insight-bubble__cta {
+            color: #0d6efd;
+            font-size: 0.88rem;
+            font-weight: 700;
+        }
+
+        .ai-assistant-button {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.9rem;
+            border: 0;
+            background: linear-gradient(135deg, #0d6efd 0%, #3b82f6 100%);
+            box-shadow: 0 18px 38px rgba(13, 110, 253, 0.38);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+            animation: aiPulse 2.8s ease-in-out infinite;
+        }
+
+        .ai-assistant-button:hover {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 22px 42px rgba(13, 110, 253, 0.46);
+            filter: brightness(1.04);
+        }
+
+        .ai-assistant-button:focus-visible,
+        .ai-insight-bubble:focus-visible {
+            outline: 0;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25), 0 18px 38px rgba(13, 110, 253, 0.38);
+        }
+
+        @keyframes aiPulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 18px 38px rgba(13, 110, 253, 0.38);
+            }
+            50% {
+                transform: scale(1.04);
+                box-shadow: 0 20px 42px rgba(13, 110, 253, 0.46);
+            }
+        }
+
+        .ai-insight-content {
+            white-space: pre-line;
+            line-height: 1.7;
+        }
+
         @media (max-width: 575.98px) {
             .team-mark {
                 width: 64px;
@@ -159,11 +367,73 @@
             .match-vs {
                 min-width: auto;
             }
+
+            .ai-insight-floating {
+                right: 1rem;
+                bottom: 1rem;
+                gap: 0.5rem;
+            }
+
+            .ai-insight-bubble {
+                max-width: min(240px, calc(100vw - 6.5rem));
+                padding: 0.8rem 0.85rem;
+            }
+
+            .ai-insight-bubble__preview {
+                display: none;
+            }
+
+            .ai-assistant-button {
+                width: 60px;
+                height: 60px;
+                font-size: 1.55rem;
+            }
         }
     </style>
 </head>
 <body>
 <main class="page-shell container py-4 py-md-5">
+    <section class="mb-4">
+        <div class="d-flex flex-column gap-3">
+            <div>
+                <a class="btn btn-outline-secondary btn-sm px-3" th:href="@{/home}">
+                    &larr; Quay lại trang chủ
+                </a>
+            </div>
+
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 small">
+                    <li class="breadcrumb-item">
+                        <a class="text-decoration-none" th:href="@{/home}">Trang chủ</a>
+                    </li>
+                    <li class="breadcrumb-item active text-secondary" aria-current="page"
+                        th:text="${match.teamA + ' vs ' + match.teamB}">
+                        Arsenal vs PSG
+                    </li>
+                </ol>
+            </nav>
+        </div>
+    </section>
+
+    <div class="alert alert-warning alert-dismissible fade show border shadow-sm mb-4" role="alert">
+        <div class="d-flex gap-3 align-items-start pe-4">
+            <div class="fs-4 lh-1">⚠️</div>
+            <div>
+                <div class="fw-bold mb-2">Lưu ý</div>
+                <div class="small">
+                    Các dự đoán tỷ số, xác suất và kèo đề xuất chỉ mang tính chất tham khảo.
+                </div>
+                <div class="small mt-2">
+                    Mọi nhận định được tổng hợp từ dữ liệu, thống kê và phân tích tại thời điểm đánh giá, không đảm bảo kết quả thực tế sẽ xảy ra.
+                </div>
+                <div class="small mt-2">
+                    Bạn nên kết hợp các chỉ số phân tích, nhận định AI và đánh giá cá nhân trước khi đưa ra quyết định của riêng mình.
+                </div>
+            </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
     <section class="hero-card p-4 p-md-5 mb-4">
         <div class="text-center mb-4">
             <div class="section-label mb-2" th:text="${match.competition.name}">Champions League</div>
@@ -173,7 +443,7 @@
         <div class="d-flex flex-column flex-md-row align-items-center justify-content-center gap-3 gap-md-4">
             <div class="text-center">
                 <div class="team-mark team-arsenal mb-3 mx-auto">
-                    <img th:if="${match.teamALogo}" th:src="${match.teamALogo}" alt="Team A logo" class="team-logo">
+                    <img th:if="${match.teamALogo}" th:src="${match.teamALogo}" alt="Logo đội A" class="team-logo">
                     <span th:if="${match.teamALogo == null}"
                           th:text="${#strings.length(match.teamA) > 3 ? #strings.substring(match.teamA, 0, 3) : match.teamA}">ARS</span>
                 </div>
@@ -187,7 +457,7 @@
 
             <div class="text-center">
                 <div class="team-mark team-psg mb-3 mx-auto">
-                    <img th:if="${match.teamBLogo}" th:src="${match.teamBLogo}" alt="Team B logo" class="team-logo">
+                    <img th:if="${match.teamBLogo}" th:src="${match.teamBLogo}" alt="Logo đội B" class="team-logo">
                     <span th:if="${match.teamBLogo == null}"
                           th:text="${#strings.length(match.teamB) > 3 ? #strings.substring(match.teamB, 0, 3) : match.teamB}">PSG</span>
                 </div>
@@ -197,443 +467,567 @@
     </section>
 
     <section class="prediction-card p-4 p-md-5">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
             <div>
-                <div class="section-label mb-1">AI Prediction</div>
-                <h2 class="h4 fw-bold mb-0">AI Prediction</h2>
+                <div class="prediction-card__hero mb-2">
+<!--                    <span class="prediction-card__icon">🤖</span>-->
+                    <div>
+<!--                        <div class="section-label mb-1">Dự đoán AI</div>-->
+                        <h2 class="h3 fw-bold mb-0">Dự đoán AI</h2>
+                    </div>
+                </div>
+                <div class="prediction-card__subtitle">Phân tích tự động từ dữ liệu trận đấu</div>
             </div>
-            <span class="badge rounded-pill text-bg-primary-subtle text-primary border border-primary-subtle px-3 py-2"
-                  th:text="${prediction != null ? 'Confidence: ' + prediction.confidence + '%' : 'Confidence: --'}">
-                Confidence: 65%
+            <span class="badge rounded-pill prediction-badge px-3 py-2"
+                  th:classappend="${prediction == null ? ' text-bg-secondary' : (prediction.confidence <= 30 ? ' text-bg-danger' : (prediction.confidence <= 60 ? ' text-bg-warning' : ' text-bg-success'))}"
+                  th:text="${prediction == null ? 'Độ tin cậy: --' : (prediction.confidence <= 30 ? '🔴 Độ tin cậy thấp - ' + prediction.confidence + '%' : (prediction.confidence <= 60 ? '🟡 Độ tin cậy trung bình - ' + prediction.confidence + '%' : '🟢 Độ tin cậy cao - ' + prediction.confidence + '%'))}">
+                Độ tin cậy: 65%
             </span>
         </div>
 
         <div class="row g-3 align-items-stretch">
             <div class="col-12 col-md-4">
-                <div class="h-100 rounded-4 border bg-light p-4 text-center">
-                    <div class="section-label mb-2">Score Prediction</div>
-                    <div class="display-5 fw-bold text-dark mb-0"
-                         th:text="${prediction != null ? prediction.scorePrediction : '--'}">1 - 1</div>
+                <div class="h-100 rounded-4 border bg-light p-4 text-center prediction-stat-card">
+                    <div class="section-label mb-2">Tỷ số dự đoán</div>
+                    <div class="prediction-score fw-bold text-dark mb-0">
+                        <span class="prediction-score__icon">⚽</span>
+                        <span th:text="${prediction != null ? prediction.scorePrediction : '--'}">1 - 1</span>
+                    </div>
                 </div>
             </div>
 
             <div class="col-12 col-md-4">
-                <div class="h-100 rounded-4 border bg-light p-4">
-                    <div class="section-label mb-2 text-center">Recommended Bet</div>
+                <div class="h-100 rounded-4 border bg-light p-4 prediction-stat-card prediction-bet-card">
+                    <div class="section-label mb-2 text-center prediction-bet-card__title"><span>🔥</span><span>Kèo đề xuất</span></div>
                     <div class="d-flex flex-column gap-3">
                         <div class="rounded-3 border bg-white p-3" th:each="bet : ${betRecommendations}">
                             <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
                                 <div class="fw-bold text-dark" th:text="${bet.title}">BTTS</div>
                                 <span class="badge rounded-pill bg-light text-secondary border" th:text="${bet.betType}">BTTS</span>
                             </div>
-                            <div class="small text-secondary" th:text="${bet.recommendation}">Both teams to score</div>
+                            <div class="prediction-bet-card__recommendation" th:text="${bet.recommendation}">Cả hai đội cùng ghi bàn</div>
                         </div>
 
                         <div class="text-secondary small text-center" th:if="${#lists.isEmpty(betRecommendations)}">
-                            No recommendation data available.
+                            Chưa có dữ liệu kèo đề xuất.
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="col-12 col-md-4">
-                <div class="h-100 rounded-4 border bg-light p-4 text-center">
-                    <div class="section-label mb-2">Confidence</div>
-                    <div class="display-6 fw-bold text-primary mb-0"
+                <div class="h-100 rounded-4 border bg-light p-4 text-center prediction-stat-card prediction-confidence-panel">
+                    <div class="section-label mb-2"
+                         th:text="${prediction == null ? 'Độ tin cậy' : (prediction.confidence <= 30 ? ' Độ tin cậy' : 'Độ tin cậy')}">Độ tin cậy</div>
+                    <div class="display-6 fw-bold mb-0"
+                         th:classappend="${prediction == null ? 'text-secondary' : (prediction.confidence <= 30 ? 'text-danger' : (prediction.confidence <= 60 ? 'text-warning' : 'text-success'))}"
                          th:text="${prediction != null ? prediction.confidence + '%' : '--'}">65%</div>
-                    <div class="small text-secondary mt-2">Moderate confidence</div>
+                    <div class="small mt-2"
+                         th:classappend="${prediction == null ? 'text-secondary' : (prediction.confidence <= 30 ? 'text-danger' : (prediction.confidence <= 60 ? 'text-warning' : 'text-success'))}"
+                         th:text="${prediction == null ? 'Chưa có dữ liệu độ tin cậy' : (prediction.confidence <= 30 ? 'Độ tin cậy thấp' : (prediction.confidence <= 60 ? 'Độ tin cậy trung bình' : 'Độ tin cậy cao'))}">Độ tin cậy trung bình</div>
                 </div>
             </div>
         </div>
     </section>
 
-    <div class="row g-4 mt-1">
-        <div class="col-12 col-lg-8">
-            <section class="info-card p-4 p-md-5 h-100">
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
-                    <div>
-                        <div class="section-label mb-1">Prediction Model</div>
-                        <h3 class="h5 fw-bold mb-0">Prediction Model</h3>
-                    </div>
-                    <span class="badge rounded-pill bg-light text-secondary border px-3 py-2">AI probability model</span>
-                </div>
-
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between small fw-semibold mb-2">
-                        <span th:text="${match.teamA + ' Win'}">Arsenal Win</span>
-                        <span th:text="${predictionModel != null ? predictionModel.teamAWinProbability + '%' : '--'}">42%</span>
-                    </div>
-                    <div class="progress" style="height: 12px;">
-                        <div class="progress-bar bg-danger"
-                             role="progressbar"
-                             th:style="${predictionModel != null ? 'width: ' + predictionModel.teamAWinProbability + '%;' : 'width: 0%;'}"
-                             th:attr="aria-valuenow=${predictionModel != null ? predictionModel.teamAWinProbability : 0}"
-                             aria-valuemin="0"
-                             aria-valuemax="100"></div>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between small fw-semibold mb-2">
-                        <span>Draw</span>
-                        <span th:text="${predictionModel != null ? predictionModel.drawProbability + '%' : '--'}">31%</span>
-                    </div>
-                    <div class="progress" style="height: 12px;">
-                        <div class="progress-bar bg-secondary"
-                             role="progressbar"
-                             th:style="${predictionModel != null ? 'width: ' + predictionModel.drawProbability + '%;' : 'width: 0%;'}"
-                             th:attr="aria-valuenow=${predictionModel != null ? predictionModel.drawProbability : 0}"
-                             aria-valuemin="0"
-                             aria-valuemax="100"></div>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="d-flex justify-content-between small fw-semibold mb-2">
-                        <span th:text="${match.teamB + ' Win'}">PSG Win</span>
-                        <span th:text="${predictionModel != null ? predictionModel.teamBWinProbability + '%' : '--'}">27%</span>
-                    </div>
-                    <div class="progress" style="height: 12px;">
-                        <div class="progress-bar bg-primary"
-                             role="progressbar"
-                             th:style="${predictionModel != null ? 'width: ' + predictionModel.teamBWinProbability + '%;' : 'width: 0%;'}"
-                             th:attr="aria-valuenow=${predictionModel != null ? predictionModel.teamBWinProbability : 0}"
-                             aria-valuemin="0"
-                             aria-valuemax="100"></div>
-                    </div>
-                </div>
-            </section>
+    <section class="info-card p-3 p-md-4 mt-4">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-3">
+            <div>
+                <div class="section-label mb-1">Điều hướng phân tích</div>
+                <h3 class="h5 fw-bold mb-0">Các mục phân tích</h3>
+            </div>
         </div>
 
-        <div class="col-12 col-lg-4">
-            <section class="info-card p-4 p-md-5 h-100">
-                <div class="section-label mb-1">Data Confidence</div>
-                <h3 class="h5 fw-bold mb-4">Data Confidence</h3>
+        <div class="tab-nav-shell">
+            <ul class="nav nav-pills analysis-tabs" id="analysisTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="prediction-model-tab" data-bs-toggle="pill" data-bs-target="#prediction-model-pane" type="button" role="tab" aria-controls="prediction-model-pane" aria-selected="true">Mô hình dự đoán</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="data-confidence-tab" data-bs-toggle="pill" data-bs-target="#data-confidence-pane" type="button" role="tab" aria-controls="data-confidence-pane" aria-selected="false">Data Độ tin cậy</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="key-players-tab" data-bs-toggle="pill" data-bs-target="#key-players-pane" type="button" role="tab" aria-controls="key-players-pane" aria-selected="false">Cầu thủ nổi bật</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="recent-form-tab" data-bs-toggle="pill" data-bs-target="#recent-form-pane" type="button" role="tab" aria-controls="recent-form-pane" aria-selected="false">Phong độ gần đây</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="h2h-tab" data-bs-toggle="pill" data-bs-target="#h2h-pane" type="button" role="tab" aria-controls="h2h-pane" aria-selected="false">Lịch sử đối đầu</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="attack-tab" data-bs-toggle="pill" data-bs-target="#attack-pane" type="button" role="tab" aria-controls="attack-pane" aria-selected="false">Phân tích tấn công</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="defense-tab" data-bs-toggle="pill" data-bs-target="#defense-pane" type="button" role="tab" aria-controls="defense-pane" aria-selected="false">Phân tích phòng ngự</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="squad-tab" data-bs-toggle="pill" data-bs-target="#squad-pane" type="button" role="tab" aria-controls="squad-pane" aria-selected="false">Đội hình & Nhân sự</button>
+                </li>
+            </ul>
+        </div>
+    </section>
 
-                <div class="confidence-ring mb-4"
-                     th:style="${predictionModel != null ? 'background: conic-gradient(#0d6efd 0 ' + predictionModel.dataConfidence + '%, #e9ecef ' + predictionModel.dataConfidence + '% 100%);' : ''}">
-                    <div class="confidence-ring__inner">
-                        <div class="fs-4 fw-bold text-primary lh-1"
-                             th:text="${predictionModel != null ? predictionModel.dataConfidence + '%' : '--'}">78%</div>
+    <div class="tab-content mt-4" id="analysisTabsContent">
+        <div class="tab-pane fade show active" id="prediction-model-pane" role="tabpanel" aria-labelledby="prediction-model-tab" tabindex="0">
+            <div class="tab-panel-stack">
+                <section class="info-card p-4 p-md-5">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+                        <div>
+                            <div class="section-label mb-1">Mô hình dự đoán</div>
+                            <h3 class="h5 fw-bold mb-0">Mô hình dự đoán</h3>
+                        </div>
+                        <span class="badge rounded-pill bg-light text-secondary border px-3 py-2">Mô hình xác suất AI</span>
                     </div>
-                </div>
 
-                <p class="text-secondary text-center mb-0">
-                    Based on form, injury and tactical data
-                </p>
-            </section>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small fw-semibold mb-2">
+                            <span th:text="${match.teamA + ' thắng'}">Arsenal thắng</span>
+                            <span th:text="${predictionModel != null ? predictionModel.teamAWinProbability + '%' : '--'}">42%</span>
+                        </div>
+                        <div class="progress" style="height: 12px;">
+                            <div class="progress-bar bg-danger"
+                                 role="progressbar"
+                                 th:style="${predictionModel != null ? 'width: ' + predictionModel.teamAWinProbability + '%;' : 'width: 0%;'}"
+                                 th:attr="aria-valuenow=${predictionModel != null ? predictionModel.teamAWinProbability : 0}"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small fw-semibold mb-2">
+                            <span>Hòa</span>
+                            <span th:text="${predictionModel != null ? predictionModel.drawProbability + '%' : '--'}">31%</span>
+                        </div>
+                        <div class="progress" style="height: 12px;">
+                            <div class="progress-bar bg-secondary"
+                                 role="progressbar"
+                                 th:style="${predictionModel != null ? 'width: ' + predictionModel.drawProbability + '%;' : 'width: 0%;'}"
+                                 th:attr="aria-valuenow=${predictionModel != null ? predictionModel.drawProbability : 0}"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="d-flex justify-content-between small fw-semibold mb-2">
+                            <span th:text="${match.teamB + ' thắng'}">PSG thắng</span>
+                            <span th:text="${predictionModel != null ? predictionModel.teamBWinProbability + '%' : '--'}">27%</span>
+                        </div>
+                        <div class="progress" style="height: 12px;">
+                            <div class="progress-bar bg-primary"
+                                 role="progressbar"
+                                 th:style="${predictionModel != null ? 'width: ' + predictionModel.teamBWinProbability + '%;' : 'width: 0%;'}"
+                                 th:attr="aria-valuenow=${predictionModel != null ? predictionModel.teamBWinProbability : 0}"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="data-confidence-pane" role="tabpanel" aria-labelledby="data-confidence-tab" tabindex="0">
+            <div class="tab-panel-stack">
+                <section class="info-card p-4 p-md-5">
+                    <div class="section-label mb-1">Data Độ tin cậy</div>
+                    <h3 class="h5 fw-bold mb-4">Data Độ tin cậy</h3>
+
+                    <div class="confidence-ring mb-4"
+                         th:style="${predictionModel != null ? 'background: conic-gradient(' + (predictionModel.dataConfidence <= 30 ? '#dc3545' : (predictionModel.dataConfidence <= 60 ? '#ffc107' : '#198754')) + ' 0 ' + predictionModel.dataConfidence + '%, #e9ecef ' + predictionModel.dataConfidence + '% 100%);' : ''}">
+                        <div class="confidence-ring__inner">
+                            <div class="fs-4 fw-bold lh-1"
+                                 th:classappend="${predictionModel == null ? 'text-secondary' : (predictionModel.dataConfidence <= 30 ? 'text-danger' : (predictionModel.dataConfidence <= 60 ? 'text-warning' : 'text-success'))}"
+                                 th:text="${predictionModel != null ? predictionModel.dataConfidence + '%' : '--'}">78%</div>
+                        </div>
+                    </div>
+
+                    <p class="text-center mb-0"
+                       th:classappend="${predictionModel == null ? 'text-secondary' : (predictionModel.dataConfidence <= 30 ? 'text-danger' : (predictionModel.dataConfidence <= 60 ? 'text-warning' : 'text-success'))}"
+                       th:text="${predictionModel == null ? 'Chưa có dữ liệu độ tin cậy' : (predictionModel.dataConfidence <= 30 ? 'Độ tin cậy thấp' : (predictionModel.dataConfidence <= 60 ? 'Độ tin cậy trung bình' : 'Độ tin cậy cao'))}">
+                        Dựa trên dữ liệu phong độ, chấn thương và chiến thuật
+                    </p>
+                </section>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="key-players-pane" role="tabpanel" aria-labelledby="key-players-tab" tabindex="0">
+            <div class="tab-panel-stack">
+                <section class="info-card p-4 p-md-5">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+                        <div>
+                            <div class="section-label mb-1">Cầu thủ nổi bật</div>
+                            <h3 class="h5 fw-bold mb-0">Cầu thủ nổi bật</h3>
+                        </div>
+                        <span class="badge rounded-pill bg-light text-secondary border px-3 py-2"
+                              th:text="${#lists.size(keyPlayers) + ' cầu thủ nổi bật'}">3 cầu thủ nổi bật</span>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-12 col-md-4" th:each="player : ${keyPlayers}">
+                            <a class="mini-card h-100 p-3 p-md-4 d-block text-decoration-none text-dark"
+                               th:href="@{/key-players/{id}(id=${player.id})}">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="player-avatar overflow-hidden p-0">
+                                        <img th:if="${!#strings.isEmpty(player.imageUrl)}"
+                                             th:src="${player.imageUrl}"
+                                             alt="Ảnh cầu thủ"
+                                             class="w-100 h-100 object-fit-cover">
+                                        <span th:if="${#strings.isEmpty(player.imageUrl)}" th:text="${player.avatarInitials}">SA</span>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold" th:text="${player.playerName}">Saka</div>
+                                        <div class="text-secondary small" th:text="${player.teamName}">Arsenal</div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-12" th:if="${#lists.isEmpty(keyPlayers)}">
+                            <div class="text-center text-secondary py-3">Chưa có dữ liệu cầu thủ nổi bật.</div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="recent-form-pane" role="tabpanel" aria-labelledby="recent-form-tab" tabindex="0">
+            <div class="tab-panel-stack">
+                <section class="info-card p-4 p-md-5">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+                        <div>
+                            <div class="section-label mb-1">Phong độ gần đây</div>
+                            <h3 class="h5 fw-bold mb-0">Phong độ gần đây</h3>
+                        </div>
+                        <span class="badge rounded-pill bg-light text-secondary border px-3 py-2">Phong độ sân nhà và sân khách</span>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-12 col-lg-6">
+                            <div class="mini-card h-100 p-4">
+                                <div class="section-label mb-1">Phong độ đội chủ nhà</div>
+                                <h4 class="h6 fw-bold mb-3" th:text="${match.teamA}">Đội chủ nhà</h4>
+
+                                <div class="mb-4">
+                                    <div class="small fw-semibold text-secondary mb-2">Các trận gần đây</div>
+                                    <div class="rounded-3 border bg-light p-3 recent-matches-box"
+                                         th:text="${homeTeamForm != null ? homeTeamForm.recentMatchesText : 'Chưa có dữ liệu phong độ gần đây.'}">
+                                        W 2-0 Team X
+                                    </div>
+                                </div>
+
+                                <div class="row g-3 mb-4" th:if="${homeTeamForm != null}">
+                                    <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Thắng</div><div class="fw-bold fs-5" th:text="${homeTeamForm.wins}">0</div></div></div>
+                                    <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Hòa</div><div class="fw-bold fs-5" th:text="${homeTeamForm.draws}">0</div></div></div>
+                                    <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Thua</div><div class="fw-bold fs-5" th:text="${homeTeamForm.losses}">0</div></div></div>
+                                    <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Bàn thắng</div><div class="fw-bold fs-5" th:text="${homeTeamForm.goalsScored}">0</div></div></div>
+                                    <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Bàn thua</div><div class="fw-bold fs-5" th:text="${homeTeamForm.goalsConceded}">0</div></div></div>
+                                    <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Clean Sheets</div><div class="fw-bold fs-5" th:text="${homeTeamForm.cleanSheets}">0</div></div></div>
+                                </div>
+
+                                <div th:if="${homeTeamForm != null}">
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between small fw-semibold mb-2"><span>Tỷ lệ thắng</span><span th:text="${homeTeamForm.winRate + '%'}">0%</span></div>
+                                        <div class="progress" style="height: 10px;"><div class="progress-bar bg-success" th:style="${'width: ' + homeTeamForm.winRate + '%;'}"></div></div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between small fw-semibold mb-2"><span>Tỷ lệ Clean Sheet</span><span th:text="${homeTeamForm.cleanSheetRate + '%'}">0%</span></div>
+                                        <div class="progress" style="height: 10px;"><div class="progress-bar bg-info" th:style="${'width: ' + homeTeamForm.cleanSheetRate + '%;'}"></div></div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between small fw-semibold mb-2"><span>Tỷ lệ ghi bàn</span><span th:text="${homeTeamForm.scoringRate + '%'}">0%</span></div>
+                                        <div class="progress" style="height: 10px;"><div class="progress-bar bg-primary" th:style="${'width: ' + homeTeamForm.scoringRate + '%;'}"></div></div>
+                                    </div>
+                                    <div>
+                                        <div class="d-flex justify-content-between small fw-semibold mb-2"><span>Tỷ lệ thủng lưới</span><span th:text="${homeTeamForm.concedingRate + '%'}">0%</span></div>
+                                        <div class="progress" style="height: 10px;"><div class="progress-bar bg-warning" th:style="${'width: ' + homeTeamForm.concedingRate + '%;'}"></div></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-lg-6">
+                            <div class="mini-card h-100 p-4">
+                                <div class="section-label mb-1">Phong độ đội khách</div>
+                                <h4 class="h6 fw-bold mb-3" th:text="${match.teamB}">Đội khách</h4>
+
+                                <div class="mb-4">
+                                    <div class="small fw-semibold text-secondary mb-2">Các trận gần đây</div>
+                                    <div class="rounded-3 border bg-light p-3 recent-matches-box"
+                                         th:text="${awayTeamForm != null ? awayTeamForm.recentMatchesText : 'Chưa có dữ liệu phong độ gần đây.'}">
+                                        W 2-0 Team X
+                                    </div>
+                                </div>
+
+                                <div class="row g-3 mb-4" th:if="${awayTeamForm != null}">
+                                    <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Thắng</div><div class="fw-bold fs-5" th:text="${awayTeamForm.wins}">0</div></div></div>
+                                    <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Hòa</div><div class="fw-bold fs-5" th:text="${awayTeamForm.draws}">0</div></div></div>
+                                    <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Thua</div><div class="fw-bold fs-5" th:text="${awayTeamForm.losses}">0</div></div></div>
+                                    <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Bàn thắng</div><div class="fw-bold fs-5" th:text="${awayTeamForm.goalsScored}">0</div></div></div>
+                                    <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Bàn thua</div><div class="fw-bold fs-5" th:text="${awayTeamForm.goalsConceded}">0</div></div></div>
+                                    <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Clean Sheets</div><div class="fw-bold fs-5" th:text="${awayTeamForm.cleanSheets}">0</div></div></div>
+                                </div>
+
+                                <div th:if="${awayTeamForm != null}">
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between small fw-semibold mb-2"><span>Tỷ lệ thắng</span><span th:text="${awayTeamForm.winRate + '%'}">0%</span></div>
+                                        <div class="progress" style="height: 10px;"><div class="progress-bar bg-success" th:style="${'width: ' + awayTeamForm.winRate + '%;'}"></div></div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between small fw-semibold mb-2"><span>Tỷ lệ Clean Sheet</span><span th:text="${awayTeamForm.cleanSheetRate + '%'}">0%</span></div>
+                                        <div class="progress" style="height: 10px;"><div class="progress-bar bg-info" th:style="${'width: ' + awayTeamForm.cleanSheetRate + '%;'}"></div></div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between small fw-semibold mb-2"><span>Tỷ lệ ghi bàn</span><span th:text="${awayTeamForm.scoringRate + '%'}">0%</span></div>
+                                        <div class="progress" style="height: 10px;"><div class="progress-bar bg-primary" th:style="${'width: ' + awayTeamForm.scoringRate + '%;'}"></div></div>
+                                    </div>
+                                    <div>
+                                        <div class="d-flex justify-content-between small fw-semibold mb-2"><span>Tỷ lệ thủng lưới</span><span th:text="${awayTeamForm.concedingRate + '%'}">0%</span></div>
+                                        <div class="progress" style="height: 10px;"><div class="progress-bar bg-warning" th:style="${'width: ' + awayTeamForm.concedingRate + '%;'}"></div></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="h2h-pane" role="tabpanel" aria-labelledby="h2h-tab" tabindex="0">
+            <div class="tab-panel-stack">
+                <section class="info-card p-4 p-md-5">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+                        <div>
+                            <div class="section-label mb-1">Lịch sử đối đầu</div>
+                            <h3 class="h5 fw-bold mb-0">Lịch sử đối đầu</h3>
+                        </div>
+                        <span class="badge rounded-pill bg-light text-secondary border px-3 py-2">Dữ liệu đối đầu trong quá khứ</span>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="small fw-semibold text-secondary mb-2">Các trận đối đầu gần đây</div>
+                        <div class="rounded-3 border bg-light p-3 recent-matches-box"
+                             th:text="${headToHead != null ? headToHead.h2hMatchesText : 'Chưa có dữ liệu lịch sử đối đầu.'}">
+                            Lịch sử kết quả đối đầu
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4" th:if="${headToHead != null}">
+                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Tổng số trận</div><div class="fw-bold fs-5" th:text="${headToHead.totalMatches}">0</div></div></div>
+                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center" th:text="${match.teamA + ' thắng'}">Đội A thắngs</div><div class="fw-bold fs-5" th:text="${headToHead.teamAWins}">0</div></div></div>
+                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Hòa</div><div class="fw-bold fs-5" th:text="${headToHead.draws}">0</div></div></div>
+                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center" th:text="${match.teamB + ' thắng'}">Đội B thắngs</div><div class="fw-bold fs-5" th:text="${headToHead.teamBWins}">0</div></div></div>
+                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center" th:text="${'Bàn thắng ' + match.teamA}">Bàn thắng đội A</div><div class="fw-bold fs-5" th:text="${headToHead.teamAGoals}">0</div></div></div>
+                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center" th:text="${'Bàn thắng ' + match.teamB}">Bàn thắng đội B</div><div class="fw-bold fs-5" th:text="${headToHead.teamBGoals}">0</div></div></div>
+                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Tổng số bàn thắng</div><div class="fw-bold fs-5" th:text="${headToHead.totalGoals}">0</div></div></div>
+                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Trung bình bàn mỗi trận</div><div class="fw-bold fs-5" th:text="${headToHead.averageGoalsPerMatch}">0</div></div></div>
+                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center" th:text="${match.teamA + ' Clean Sheets'}">Clean Sheet đội A</div><div class="fw-bold fs-5" th:text="${headToHead.teamACleanSheets}">0</div></div></div>
+                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center" th:text="${match.teamB + ' Clean Sheets'}">Clean Sheet đội B</div><div class="fw-bold fs-5" th:text="${headToHead.teamBCleanSheets}">0</div></div></div>
+                    </div>
+
+                    <div class="rounded-3 border bg-light p-4">
+                        <div class="section-label mb-2">Phân tích lịch sử đối đầu</div>
+                        <div class="analysis-box text-secondary"
+                             th:text="${headToHead != null ? headToHead.analysis : 'Chưa có nội dung phân tích lịch sử đối đầu.'}">
+                            Xu hướng gần đây:
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="attack-pane" role="tabpanel" aria-labelledby="attack-tab" tabindex="0">
+            <div class="tab-panel-stack">
+                <section class="info-card p-4 p-md-5">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+                        <div>
+                            <div class="section-label mb-1">Phân tích tấn công</div>
+                            <h3 class="h5 fw-bold mb-0">Phân tích tấn công</h3>
+                        </div>
+                        <span class="badge rounded-pill bg-light text-secondary border px-3 py-2">So sánh sức mạnh tấn công</span>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="section-label mb-2">Biểu đồ so sánh tấn công</div>
+                        <div class="chart-shell">
+                            <canvas id="attackComparisonChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4" th:if="${attackAnalysis != null}">
+                        <div class="col-12 col-md-6">
+                            <div class="mini-card h-100 p-4">
+                                <div class="section-label mb-2">Chỉ số tấn công</div>
+                                <div class="table-responsive">
+                                    <table class="table table-sm align-middle mb-0">
+                                        <tbody>
+                                        <tr><th>Bàn thắng</th><td th:text="${attackAnalysis.teamAGoals + ' vs ' + attackAnalysis.teamBGoals}">12 vs 18</td></tr>
+                                        <tr><th>Bàn thắng mỗi trận</th><td th:text="${attackAnalysis.teamAGoalsPerMatch + ' vs ' + attackAnalysis.teamBGoalsPerMatch}">1.2 vs 1.8</td></tr>
+                                        <tr><th>xG Per Match</th><td th:text="${attackAnalysis.teamAXgPerMatch + ' vs ' + attackAnalysis.teamBXgPerMatch}">1.9 vs 2.7</td></tr>
+                                        <tr><th>Big Chances</th><td th:text="${attackAnalysis.teamABigChances + ' vs ' + attackAnalysis.teamBBigChances}">14 vs 22</td></tr>
+                                        <tr><th>Shots Per Match</th><td th:text="${attackAnalysis.teamAShotsPerMatch + ' vs ' + attackAnalysis.teamBShotsPerMatch}">13 vs 17</td></tr>
+                                        <tr><th>Tỷ lệ chuyển hóa</th><td th:text="${attackAnalysis.teamAConversionRate + '% vs ' + attackAnalysis.teamBConversionRate + '%'}">14% vs 17%</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="mini-card h-100 p-4">
+                                <div class="section-label mb-2">Nhận định tấn công</div>
+                                <div class="analysis-box text-secondary" th:text="${attackAnalysis.analysis}">
+                                    Mẫu hình tấn công chủ đạo:
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mini-card p-4 text-secondary" th:if="${attackAnalysis == null}">
+                        Chưa có dữ liệu phân tích tấn công.
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="defense-pane" role="tabpanel" aria-labelledby="defense-tab" tabindex="0">
+            <div class="tab-panel-stack">
+                <section class="info-card p-4 p-md-5">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+                        <div>
+                            <div class="section-label mb-1">Phân tích phòng ngự</div>
+                            <h3 class="h5 fw-bold mb-0">Phân tích phòng ngự</h3>
+                        </div>
+                        <span class="badge rounded-pill bg-light text-secondary border px-3 py-2">So sánh sức mạnh phòng ngự</span>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="section-label mb-2">Biểu đồ so sánh phòng ngự</div>
+                        <div class="chart-shell">
+                            <canvas id="defenseComparisonChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4" th:if="${defenseAnalysis != null}">
+                        <div class="col-12 col-md-6">
+                            <div class="mini-card h-100 p-4">
+                                <div class="section-label mb-2">Chỉ số phòng ngự</div>
+                                <div class="table-responsive">
+                                    <table class="table table-sm align-middle mb-0">
+                                        <tbody>
+                                        <tr><th>Bàn thua</th><td th:text="${defenseAnalysis.teamAGoalsConceded + ' vs ' + defenseAnalysis.teamBGoalsConceded}">6 vs 10</td></tr>
+                                        <tr><th>Bàn thua mỗi trận</th><td th:text="${defenseAnalysis.teamAGoalsConcededPerMatch + ' vs ' + defenseAnalysis.teamBGoalsConcededPerMatch}">0.6 vs 1.0</td></tr>
+                                        <tr><th>Clean Sheets</th><td th:text="${defenseAnalysis.teamACleanSheets + ' vs ' + defenseAnalysis.teamBCleanSheets}">4 vs 2</td></tr>
+                                        <tr><th>xGA Per Match</th><td th:text="${defenseAnalysis.teamAXgaPerMatch + ' vs ' + defenseAnalysis.teamBXgaPerMatch}">0.9 vs 1.3</td></tr>
+                                        <tr><th>Shots Conceded Per Match</th><td th:text="${defenseAnalysis.teamAShotsConcededPerMatch + ' vs ' + defenseAnalysis.teamBShotsConcededPerMatch}">8 vs 12</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="mini-card h-100 p-4">
+                                <div class="section-label mb-2">Nhận định phòng ngự</div>
+                                <div class="analysis-box text-secondary" th:text="${defenseAnalysis.analysis}">
+                                    Sự ổn định phòng ngự:
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mini-card p-4 text-secondary" th:if="${defenseAnalysis == null}">
+                        Chưa có dữ liệu phân tích phòng ngự.
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="squad-pane" role="tabpanel" aria-labelledby="squad-tab" tabindex="0">
+            <div class="tab-panel-stack">
+                <section class="info-card p-4 p-md-5">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+                        <div>
+                            <div class="section-label mb-1">Đội hình & Nhân sự</div>
+                            <h3 class="h5 fw-bold mb-0">Đội hình & Nhân sự</h3>
+                        </div>
+                        <span class="badge rounded-pill bg-light text-secondary border px-3 py-2">Tình hình nhân sự và đội hình dự kiến</span>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-12 col-lg-6">
+                            <div class="mini-card h-100 p-4">
+                                <div class="section-label mb-1">Đội A</div>
+                                <h4 class="h6 fw-bold mb-3" th:text="${match.teamA}">Đội A</h4>
+                                <div class="analysis-box text-secondary"
+                                     th:text="${squadAnalysis != null ? squadAnalysis.teamAContent : 'Chưa có dữ liệu đội hình và nhân sự.'}">
+                                    Chấn thương:
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-lg-6">
+                            <div class="mini-card h-100 p-4">
+                                <div class="section-label mb-1">Đội B</div>
+                                <h4 class="h6 fw-bold mb-3" th:text="${match.teamB}">Đội B</h4>
+                                <div class="analysis-box text-secondary"
+                                     th:text="${squadAnalysis != null ? squadAnalysis.teamBContent : 'Chưa có dữ liệu đội hình và nhân sự.'}">
+                                    Chấn thương:
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
         </div>
     </div>
-
-    <section class="info-card p-4 p-md-5 mt-4">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
-            <div>
-                <div class="section-label mb-1">Key Players</div>
-                <h3 class="h5 fw-bold mb-0">Key Players</h3>
-            </div>
-            <span class="badge rounded-pill bg-light text-secondary border px-3 py-2"
-                  th:text="${#lists.size(keyPlayers) + ' featured players'}">3 featured players</span>
-        </div>
-
-        <div class="row g-3">
-            <div class="col-12 col-md-4" th:each="player : ${keyPlayers}">
-                <a class="mini-card h-100 p-3 p-md-4 d-block text-decoration-none text-dark"
-                   th:href="@{/key-players/{id}(id=${player.id})}">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="player-avatar overflow-hidden p-0">
-                            <img th:if="${!#strings.isEmpty(player.imageUrl)}"
-                                 th:src="${player.imageUrl}"
-                                 alt="Player avatar"
-                                 class="w-100 h-100 object-fit-cover">
-                            <span th:if="${#strings.isEmpty(player.imageUrl)}" th:text="${player.avatarInitials}">SA</span>
-                        </div>
-                        <div>
-                            <div class="fw-bold" th:text="${player.playerName}">Saka</div>
-                            <div class="text-secondary small" th:text="${player.teamName}">Arsenal</div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-12" th:if="${#lists.isEmpty(keyPlayers)}">
-                <div class="text-center text-secondary py-3">No key player data available.</div>
-            </div>
-        </div>
-    </section>
-
-    <section class="info-card p-4 p-md-5 mt-4">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
-            <div>
-                <div class="section-label mb-1">Team Recent Form</div>
-                <h3 class="h5 fw-bold mb-0">Team Recent Form</h3>
-            </div>
-            <span class="badge rounded-pill bg-light text-secondary border px-3 py-2">Home and away recent form</span>
-        </div>
-
-        <div class="row g-4">
-            <div class="col-12 col-lg-6">
-                <div class="mini-card h-100 p-4">
-                    <div class="section-label mb-1">Home Team Form</div>
-                    <h4 class="h6 fw-bold mb-3" th:text="${match.teamA}">Home Team</h4>
-
-                    <div class="mb-4">
-                        <div class="small fw-semibold text-secondary mb-2">Recent Matches</div>
-                        <div class="rounded-3 border bg-light p-3 recent-matches-box"
-                             th:text="${homeTeamForm != null ? homeTeamForm.recentMatchesText : 'No recent form data available.'}">
-                            W 2-0 Team X
-                        </div>
-                    </div>
-
-                    <div class="row g-3 mb-4" th:if="${homeTeamForm != null}">
-                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Wins</div><div class="fw-bold fs-5" th:text="${homeTeamForm.wins}">0</div></div></div>
-                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Draws</div><div class="fw-bold fs-5" th:text="${homeTeamForm.draws}">0</div></div></div>
-                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Losses</div><div class="fw-bold fs-5" th:text="${homeTeamForm.losses}">0</div></div></div>
-                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Goals Scored</div><div class="fw-bold fs-5" th:text="${homeTeamForm.goalsScored}">0</div></div></div>
-                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Goals Conceded</div><div class="fw-bold fs-5" th:text="${homeTeamForm.goalsConceded}">0</div></div></div>
-                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Clean Sheets</div><div class="fw-bold fs-5" th:text="${homeTeamForm.cleanSheets}">0</div></div></div>
-                    </div>
-
-                    <div th:if="${homeTeamForm != null}">
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between small fw-semibold mb-2"><span>Win Rate</span><span th:text="${homeTeamForm.winRate + '%'}">0%</span></div>
-                            <div class="progress" style="height: 10px;"><div class="progress-bar bg-success" th:style="${'width: ' + homeTeamForm.winRate + '%;'}"></div></div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between small fw-semibold mb-2"><span>Clean Sheet Rate</span><span th:text="${homeTeamForm.cleanSheetRate + '%'}">0%</span></div>
-                            <div class="progress" style="height: 10px;"><div class="progress-bar bg-info" th:style="${'width: ' + homeTeamForm.cleanSheetRate + '%;'}"></div></div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between small fw-semibold mb-2"><span>Scoring Rate</span><span th:text="${homeTeamForm.scoringRate + '%'}">0%</span></div>
-                            <div class="progress" style="height: 10px;"><div class="progress-bar bg-primary" th:style="${'width: ' + homeTeamForm.scoringRate + '%;'}"></div></div>
-                        </div>
-                        <div>
-                            <div class="d-flex justify-content-between small fw-semibold mb-2"><span>Conceding Rate</span><span th:text="${homeTeamForm.concedingRate + '%'}">0%</span></div>
-                            <div class="progress" style="height: 10px;"><div class="progress-bar bg-warning" th:style="${'width: ' + homeTeamForm.concedingRate + '%;'}"></div></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-lg-6">
-                <div class="mini-card h-100 p-4">
-                    <div class="section-label mb-1">Away Team Form</div>
-                    <h4 class="h6 fw-bold mb-3" th:text="${match.teamB}">Away Team</h4>
-
-                    <div class="mb-4">
-                        <div class="small fw-semibold text-secondary mb-2">Recent Matches</div>
-                        <div class="rounded-3 border bg-light p-3 recent-matches-box"
-                             th:text="${awayTeamForm != null ? awayTeamForm.recentMatchesText : 'No recent form data available.'}">
-                            W 2-0 Team X
-                        </div>
-                    </div>
-
-                    <div class="row g-3 mb-4" th:if="${awayTeamForm != null}">
-                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Wins</div><div class="fw-bold fs-5" th:text="${awayTeamForm.wins}">0</div></div></div>
-                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Draws</div><div class="fw-bold fs-5" th:text="${awayTeamForm.draws}">0</div></div></div>
-                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Losses</div><div class="fw-bold fs-5" th:text="${awayTeamForm.losses}">0</div></div></div>
-                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Goals Scored</div><div class="fw-bold fs-5" th:text="${awayTeamForm.goalsScored}">0</div></div></div>
-                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Goals Conceded</div><div class="fw-bold fs-5" th:text="${awayTeamForm.goalsConceded}">0</div></div></div>
-                        <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Clean Sheets</div><div class="fw-bold fs-5" th:text="${awayTeamForm.cleanSheets}">0</div></div></div>
-                    </div>
-
-                    <div th:if="${awayTeamForm != null}">
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between small fw-semibold mb-2"><span>Win Rate</span><span th:text="${awayTeamForm.winRate + '%'}">0%</span></div>
-                            <div class="progress" style="height: 10px;"><div class="progress-bar bg-success" th:style="${'width: ' + awayTeamForm.winRate + '%;'}"></div></div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between small fw-semibold mb-2"><span>Clean Sheet Rate</span><span th:text="${awayTeamForm.cleanSheetRate + '%'}">0%</span></div>
-                            <div class="progress" style="height: 10px;"><div class="progress-bar bg-info" th:style="${'width: ' + awayTeamForm.cleanSheetRate + '%;'}"></div></div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between small fw-semibold mb-2"><span>Scoring Rate</span><span th:text="${awayTeamForm.scoringRate + '%'}">0%</span></div>
-                            <div class="progress" style="height: 10px;"><div class="progress-bar bg-primary" th:style="${'width: ' + awayTeamForm.scoringRate + '%;'}"></div></div>
-                        </div>
-                        <div>
-                            <div class="d-flex justify-content-between small fw-semibold mb-2"><span>Conceding Rate</span><span th:text="${awayTeamForm.concedingRate + '%'}">0%</span></div>
-                            <div class="progress" style="height: 10px;"><div class="progress-bar bg-warning" th:style="${'width: ' + awayTeamForm.concedingRate + '%;'}"></div></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="info-card p-4 p-md-5 mt-4">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
-            <div>
-                <div class="section-label mb-1">Head To Head</div>
-                <h3 class="h5 fw-bold mb-0">Head To Head</h3>
-            </div>
-            <span class="badge rounded-pill bg-light text-secondary border px-3 py-2">Historical matchup data</span>
-        </div>
-
-        <div class="mb-4">
-            <div class="small fw-semibold text-secondary mb-2">Recent H2H Matches</div>
-            <div class="rounded-3 border bg-light p-3 recent-matches-box"
-                 th:text="${headToHead != null ? headToHead.h2hMatchesText : 'No head to head data available.'}">
-                Match result history
-            </div>
-        </div>
-
-        <div class="row g-3 mb-4" th:if="${headToHead != null}">
-            <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Total Matches</div><div class="fw-bold fs-5" th:text="${headToHead.totalMatches}">0</div></div></div>
-            <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center" th:text="${match.teamA + ' Wins'}">Team A Wins</div><div class="fw-bold fs-5" th:text="${headToHead.teamAWins}">0</div></div></div>
-            <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Draws</div><div class="fw-bold fs-5" th:text="${headToHead.draws}">0</div></div></div>
-            <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center" th:text="${match.teamB + ' Wins'}">Team B Wins</div><div class="fw-bold fs-5" th:text="${headToHead.teamBWins}">0</div></div></div>
-            <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center" th:text="${match.teamA + ' Goals'}">Team A Goals</div><div class="fw-bold fs-5" th:text="${headToHead.teamAGoals}">0</div></div></div>
-            <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center" th:text="${match.teamB + ' Goals'}">Team B Goals</div><div class="fw-bold fs-5" th:text="${headToHead.teamBGoals}">0</div></div></div>
-            <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Total Goals</div><div class="fw-bold fs-5" th:text="${headToHead.totalGoals}">0</div></div></div>
-            <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center">Average Goals Per Match</div><div class="fw-bold fs-5" th:text="${headToHead.averageGoalsPerMatch}">0</div></div></div>
-            <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center" th:text="${match.teamA + ' Clean Sheets'}">Team A Clean Sheets</div><div class="fw-bold fs-5" th:text="${headToHead.teamACleanSheets}">0</div></div></div>
-            <div class="col-6 col-md-4"><div class="rounded-3 border bg-light p-3 text-center stat-card d-flex flex-column justify-content-between"><div class="small text-secondary stat-label d-flex align-items-center justify-content-center" th:text="${match.teamB + ' Clean Sheets'}">Team B Clean Sheets</div><div class="fw-bold fs-5" th:text="${headToHead.teamBCleanSheets}">0</div></div></div>
-        </div>
-
-        <div class="rounded-3 border bg-light p-4">
-            <div class="section-label mb-2">Head To Head Analysis</div>
-            <div class="analysis-box text-secondary"
-                 th:text="${headToHead != null ? headToHead.analysis : 'No head to head analysis available.'}">
-                Recent Trend:
-            </div>
-        </div>
-    </section>
-
-    <section class="info-card p-4 p-md-5 mt-4">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
-            <div>
-                <div class="section-label mb-1">Squad & Lineup</div>
-                <h3 class="h5 fw-bold mb-0">Squad & Lineup</h3>
-            </div>
-            <span class="badge rounded-pill bg-light text-secondary border px-3 py-2">Squad status and expected lineup</span>
-        </div>
-
-        <div class="row g-4">
-            <div class="col-12 col-lg-6">
-                <div class="mini-card h-100 p-4">
-                    <div class="section-label mb-1">Team A</div>
-                    <h4 class="h6 fw-bold mb-3" th:text="${match.teamA}">Team A</h4>
-                    <div class="analysis-box text-secondary"
-                         th:text="${squadAnalysis != null ? squadAnalysis.teamAContent : 'No squad analysis available.'}">
-                        Injuries:
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-lg-6">
-                <div class="mini-card h-100 p-4">
-                    <div class="section-label mb-1">Team B</div>
-                    <h4 class="h6 fw-bold mb-3" th:text="${match.teamB}">Team B</h4>
-                    <div class="analysis-box text-secondary"
-                         th:text="${squadAnalysis != null ? squadAnalysis.teamBContent : 'No squad analysis available.'}">
-                        Injuries:
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="info-card p-4 p-md-5 mt-4">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
-            <div>
-                <div class="section-label mb-1">Attack Analysis</div>
-                <h3 class="h5 fw-bold mb-0">Attack Analysis</h3>
-            </div>
-            <span class="badge rounded-pill bg-light text-secondary border px-3 py-2">Attacking strength comparison</span>
-        </div>
-
-        <div class="mb-4">
-            <div class="section-label mb-2">Attack Comparison Chart</div>
-            <div class="chart-shell">
-                <canvas id="attackComparisonChart"></canvas>
-            </div>
-        </div>
-
-        <div class="row g-3 mb-4" th:if="${attackAnalysis != null}">
-            <div class="col-12 col-md-6">
-                <div class="mini-card h-100 p-4">
-                    <div class="section-label mb-2">Attack Statistics</div>
-                    <div class="table-responsive">
-                        <table class="table table-sm align-middle mb-0">
-                            <tbody>
-                            <tr><th>Goals</th><td th:text="${attackAnalysis.teamAGoals + ' vs ' + attackAnalysis.teamBGoals}">12 vs 18</td></tr>
-                            <tr><th>Goals Per Match</th><td th:text="${attackAnalysis.teamAGoalsPerMatch + ' vs ' + attackAnalysis.teamBGoalsPerMatch}">1.2 vs 1.8</td></tr>
-                            <tr><th>xG Per Match</th><td th:text="${attackAnalysis.teamAXgPerMatch + ' vs ' + attackAnalysis.teamBXgPerMatch}">1.9 vs 2.7</td></tr>
-                            <tr><th>Big Chances</th><td th:text="${attackAnalysis.teamABigChances + ' vs ' + attackAnalysis.teamBBigChances}">14 vs 22</td></tr>
-                            <tr><th>Shots Per Match</th><td th:text="${attackAnalysis.teamAShotsPerMatch + ' vs ' + attackAnalysis.teamBShotsPerMatch}">13 vs 17</td></tr>
-                            <tr><th>Conversion Rate</th><td th:text="${attackAnalysis.teamAConversionRate + '% vs ' + attackAnalysis.teamBConversionRate + '%'}">14% vs 17%</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-md-6">
-                <div class="mini-card h-100 p-4">
-                    <div class="section-label mb-2">Attack Insight</div>
-                    <div class="analysis-box text-secondary" th:text="${attackAnalysis.analysis}">
-                        Key Attacking Patterns:
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="mini-card p-4 text-secondary" th:if="${attackAnalysis == null}">
-            No attack analysis data available.
-        </div>
-    </section>
-
-    <section class="info-card p-4 p-md-5 mt-4">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
-            <div>
-                <div class="section-label mb-1">Defense Analysis</div>
-                <h3 class="h5 fw-bold mb-0">Defense Analysis</h3>
-            </div>
-            <span class="badge rounded-pill bg-light text-secondary border px-3 py-2">Defensive strength comparison</span>
-        </div>
-
-        <div class="mb-4">
-            <div class="section-label mb-2">Defense Comparison Chart</div>
-            <div class="chart-shell">
-                <canvas id="defenseComparisonChart"></canvas>
-            </div>
-        </div>
-
-        <div class="row g-3 mb-4" th:if="${defenseAnalysis != null}">
-            <div class="col-12 col-md-6">
-                <div class="mini-card h-100 p-4">
-                    <div class="section-label mb-2">Defense Statistics</div>
-                    <div class="table-responsive">
-                        <table class="table table-sm align-middle mb-0">
-                            <tbody>
-                            <tr><th>Goals Conceded</th><td th:text="${defenseAnalysis.teamAGoalsConceded + ' vs ' + defenseAnalysis.teamBGoalsConceded}">6 vs 10</td></tr>
-                            <tr><th>Goals Conceded Per Match</th><td th:text="${defenseAnalysis.teamAGoalsConcededPerMatch + ' vs ' + defenseAnalysis.teamBGoalsConcededPerMatch}">0.6 vs 1.0</td></tr>
-                            <tr><th>Clean Sheets</th><td th:text="${defenseAnalysis.teamACleanSheets + ' vs ' + defenseAnalysis.teamBCleanSheets}">4 vs 2</td></tr>
-                            <tr><th>xGA Per Match</th><td th:text="${defenseAnalysis.teamAXgaPerMatch + ' vs ' + defenseAnalysis.teamBXgaPerMatch}">0.9 vs 1.3</td></tr>
-                            <tr><th>Shots Conceded Per Match</th><td th:text="${defenseAnalysis.teamAShotsConcededPerMatch + ' vs ' + defenseAnalysis.teamBShotsConcededPerMatch}">8 vs 12</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-md-6">
-                <div class="mini-card h-100 p-4">
-                    <div class="section-label mb-2">Defense Insight</div>
-                    <div class="analysis-box text-secondary" th:text="${defenseAnalysis.analysis}">
-                        Defensive Stability:
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="mini-card p-4 text-secondary" th:if="${defenseAnalysis == null}">
-            No defense analysis data available.
-        </div>
-    </section>
 </main>
+<div class="ai-insight-floating" id="aiInsightWidget">
+    <button class="btn ai-insight-bubble"
+            id="aiInsightBubble"
+            type="button"
+            data-ai-open="true"
+            aria-controls="aiInsightCanvas">
+        <span class="ai-insight-bubble__label">🤖 Xem phân tích AI</span>
+        <span class="ai-insight-bubble__preview"
+              th:if="${aiInsight != null and !#strings.isEmpty(aiInsight.content)}"
+              th:text="${#strings.length(aiInsight.content) > 80 ? #strings.substring(aiInsight.content, 0, 80) + '...' : aiInsight.content}">
+            PSG đang sở hữu hàng công mạnh hơn...
+        </span>
+        <span class="ai-insight-bubble__preview"
+              th:if="${aiInsight == null or #strings.isEmpty(aiInsight.content)}">
+            Chạm để mở nhận định AI cho trận đấu này.
+        </span>
+        <span class="ai-insight-bubble__cta">Xem chi tiết</span>
+    </button>
+
+    <button class="btn btn-primary ai-assistant-button"
+            id="aiInsightTrigger"
+            type="button"
+            data-ai-open="true"
+            aria-controls="aiInsightCanvas"
+            title="Nhận định AI">
+        🤖
+    </button>
+</div>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="aiInsightCanvas" aria-labelledby="aiInsightCanvasLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="aiInsightCanvasLabel">🤖 Nhận định AI</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div class="ai-insight-content text-secondary"
+             th:text="${aiInsight != null ? aiInsight.content : 'Chưa có phân tích AI cho trận đấu này.'}">
+            Chưa có phân tích AI cho trận đấu này.
+        </div>
+    </div>
+</div>
+<script th:src="@{/assets/js/bootstrap.bundle.min.js}"></script>
 <script th:inline="javascript">
-    const attackLabels = ['Attack Index', 'Win Rate', 'Scoring Rate'];
-    const teamAName = /*[[${match.teamA}]]*/ 'Team A';
-    const teamBName = /*[[${match.teamB}]]*/ 'Team B';
+    const attackLabels = ['Attack Index', 'Tỷ lệ thắng', 'Tỷ lệ ghi bàn'];
+    const teamAName = /*[[${match.teamA}]]*/ 'Đội A';
+    const teamBName = /*[[${match.teamB}]]*/ 'Đội B';
     const teamAValues = [
         /*[[${attackAnalysis != null ? attackAnalysis.teamAAttackIndex : 0}]]*/ 0,
         /*[[${homeTeamForm != null ? homeTeamForm.winRate : 0}]]*/ 0,
@@ -684,7 +1078,7 @@
         });
     }
 
-    const defenseLabels = ['Defence Index', 'Clean Sheet Rate', 'Conceding Rate'];
+    const defenseLabels = ['Defence Index', 'Tỷ lệ Clean Sheet', 'Tỷ lệ thủng lưới'];
     const defenseTeamAValues = [
         /*[[${defenseAnalysis != null ? defenseAnalysis.teamADefenceIndex : 0}]]*/ 0,
         /*[[${defenseAnalysis != null ? defenseAnalysis.teamACleanSheetRate : 0}]]*/ 0,
@@ -732,6 +1126,154 @@
                     }
                 }
             }
+        });
+    }
+
+    const aiInsightWidget = document.getElementById('aiInsightWidget');
+    const aiInsightTrigger = document.getElementById('aiInsightTrigger');
+    const aiInsightBubble = document.getElementById('aiInsightBubble');
+    const aiInsightCanvasElement = document.getElementById('aiInsightCanvas');
+    const aiInsightCanvas = aiInsightCanvasElement ? bootstrap.Offcanvas.getOrCreateInstance(aiInsightCanvasElement) : null;
+
+    if (aiInsightWidget && aiInsightTrigger && aiInsightBubble && aiInsightCanvas) {
+        const storageKey = 'football-ai-ai-insight-widget-position';
+        const dragThreshold = 8;
+        let pointerId = null;
+        let startX = 0;
+        let startY = 0;
+        let startLeft = 0;
+        let startTop = 0;
+        let isDragging = false;
+        let hasMoved = false;
+        let suppressClick = false;
+        let pointerDownOpenTarget = null;
+
+        const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+        const applyPosition = (left, top) => {
+            const maxLeft = Math.max(window.innerWidth - aiInsightWidget.offsetWidth, 0);
+            const maxTop = Math.max(window.innerHeight - aiInsightWidget.offsetHeight, 0);
+            aiInsightWidget.style.left = clamp(left, 0, maxLeft) + 'px';
+            aiInsightWidget.style.top = clamp(top, 0, maxTop) + 'px';
+            aiInsightWidget.style.right = 'auto';
+            aiInsightWidget.style.bottom = 'auto';
+        };
+
+        const savePosition = () => {
+            localStorage.setItem(storageKey, JSON.stringify({
+                left: aiInsightWidget.offsetLeft,
+                top: aiInsightWidget.offsetTop
+            }));
+        };
+
+        const restorePosition = () => {
+            const saved = localStorage.getItem(storageKey);
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    if (typeof parsed.left === 'number' && typeof parsed.top === 'number') {
+                        applyPosition(parsed.left, parsed.top);
+                        return;
+                    }
+                } catch (error) {
+                    console.log('Unable to restore AI Insight widget position:', error);
+                }
+            }
+
+            const rect = aiInsightWidget.getBoundingClientRect();
+            applyPosition(rect.left, rect.top);
+        };
+
+        const handlePointerDown = (event) => {
+            if (event.button !== undefined && event.button !== 0) {
+                return;
+            }
+
+            pointerId = event.pointerId;
+            startX = event.clientX;
+            startY = event.clientY;
+            startLeft = aiInsightWidget.offsetLeft;
+            startTop = aiInsightWidget.offsetTop;
+            isDragging = true;
+            hasMoved = false;
+            pointerDownOpenTarget = event.target.closest('[data-ai-open="true"]');
+            aiInsightWidget.classList.add('dragging');
+            aiInsightWidget.setPointerCapture(event.pointerId);
+        };
+
+        const handlePointerMove = (event) => {
+            if (!isDragging || event.pointerId !== pointerId) {
+                return;
+            }
+
+            const deltaX = event.clientX - startX;
+            const deltaY = event.clientY - startY;
+
+            if (!hasMoved && (Math.abs(deltaX) > dragThreshold || Math.abs(deltaY) > dragThreshold)) {
+                hasMoved = true;
+            }
+
+            if (!hasMoved) {
+                return;
+            }
+
+            applyPosition(startLeft + deltaX, startTop + deltaY);
+        };
+
+        const finishDrag = (event) => {
+            if (event.pointerId !== pointerId) {
+                return;
+            }
+
+            if (aiInsightWidget.hasPointerCapture(event.pointerId)) {
+                aiInsightWidget.releasePointerCapture(event.pointerId);
+            }
+
+            aiInsightWidget.classList.remove('dragging');
+
+            if (hasMoved) {
+                savePosition();
+                suppressClick = true;
+                window.setTimeout(() => {
+                    suppressClick = false;
+                }, 0);
+            }
+
+            if (!hasMoved && pointerDownOpenTarget) {
+                aiInsightCanvas.show();
+                suppressClick = true;
+                window.setTimeout(() => {
+                    suppressClick = false;
+                }, 0);
+            }
+
+            isDragging = false;
+            pointerId = null;
+            pointerDownOpenTarget = null;
+        };
+
+        const handleWidgetClick = (event) => {
+            if (suppressClick || hasMoved || isDragging) {
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+
+            aiInsightCanvas.show();
+        };
+
+        restorePosition();
+
+        aiInsightWidget.addEventListener('pointerdown', handlePointerDown);
+        aiInsightWidget.addEventListener('pointermove', handlePointerMove);
+        aiInsightWidget.addEventListener('pointerup', finishDrag);
+        aiInsightWidget.addEventListener('pointercancel', finishDrag);
+        aiInsightBubble.addEventListener('click', handleWidgetClick);
+        aiInsightTrigger.addEventListener('click', handleWidgetClick);
+
+        window.addEventListener('resize', () => {
+            applyPosition(aiInsightWidget.offsetLeft, aiInsightWidget.offsetTop);
+            savePosition();
         });
     }
 </script>

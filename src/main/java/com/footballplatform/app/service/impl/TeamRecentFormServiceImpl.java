@@ -136,7 +136,7 @@ public class TeamRecentFormServiceImpl implements TeamRecentFormService {
                 .concedingRate(entity.getConcedingRate())
                 .matchLabel(buildMatchLabel(entity.getMatch()))
                 .matchStatus(entity.getMatch() != null && entity.getMatch().getStatus() != null
-                        ? entity.getMatch().getStatus().name()
+                        ? entity.getMatch().getStatus().getDisplayName()
                         : "")
                 .build();
     }

@@ -98,7 +98,7 @@ public class KeyPlayerServiceImpl implements KeyPlayerService {
                 .avatarInitials(buildAvatarInitials(entity.getPlayerName()))
                 .matchLabel(buildMatchLabel(entity.getMatch()))
                 .matchStatus(entity.getMatch() != null && entity.getMatch().getStatus() != null
-                        ? entity.getMatch().getStatus().name()
+                        ? entity.getMatch().getStatus().getDisplayName()
                         : "")
                 .build();
     }

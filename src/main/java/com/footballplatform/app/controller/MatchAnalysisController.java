@@ -3,6 +3,7 @@ package com.footballplatform.app.controller;
 import com.footballplatform.app.dto.MatchDTO;
 import com.footballplatform.app.entity.TeamSide;
 import com.footballplatform.app.service.AttackAnalysisService;
+import com.footballplatform.app.service.AIInsightService;
 import com.footballplatform.app.service.BetRecommendationService;
 import com.footballplatform.app.service.DefenseAnalysisService;
 import com.footballplatform.app.service.HeadToHeadService;
@@ -23,6 +24,7 @@ public class MatchAnalysisController {
 
     private final MatchService matchService;
     private final MatchPredictionService matchPredictionService;
+    private final AIInsightService aiInsightService;
     private final AttackAnalysisService attackAnalysisService;
     private final DefenseAnalysisService defenseAnalysisService;
     private final BetRecommendationService betRecommendationService;
@@ -34,6 +36,7 @@ public class MatchAnalysisController {
 
     public MatchAnalysisController(MatchService matchService,
                                    MatchPredictionService matchPredictionService,
+                                   AIInsightService aiInsightService,
                                    AttackAnalysisService attackAnalysisService,
                                    DefenseAnalysisService defenseAnalysisService,
                                    BetRecommendationService betRecommendationService,
@@ -44,6 +47,7 @@ public class MatchAnalysisController {
                                    TeamRecentFormService teamRecentFormService) {
         this.matchService = matchService;
         this.matchPredictionService = matchPredictionService;
+        this.aiInsightService = aiInsightService;
         this.attackAnalysisService = attackAnalysisService;
         this.defenseAnalysisService = defenseAnalysisService;
         this.betRecommendationService = betRecommendationService;
@@ -60,6 +64,7 @@ public class MatchAnalysisController {
             MatchDTO match = matchService.findById(id);
             model.addAttribute("match", match);
             model.addAttribute("prediction", matchPredictionService.findByMatchId(id).orElse(null));
+            model.addAttribute("aiInsight", aiInsightService.findByMatchId(id).orElse(null));
             model.addAttribute("attackAnalysis", attackAnalysisService.findByMatchId(id).orElse(null));
             model.addAttribute("defenseAnalysis", defenseAnalysisService.findByMatchId(id).orElse(null));
             model.addAttribute("betRecommendations", betRecommendationService.findByMatchId(id));

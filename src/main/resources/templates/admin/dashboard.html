@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
 </head>
 <body class="bg-light">
 <div th:replace="~{fragments/navigation :: dashboardNav('dashboard')}"></div>
@@ -121,6 +121,15 @@
                     <h2 class="h5">Defense Analyses</h2>
                     <p class="text-muted">Manage defensive strength comparison and insights.</p>
                     <a class="btn btn-primary" th:href="@{/admin/defense-analyses}">Go to Defense Analyses</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="h5">AI Insights</h2>
+                    <p class="text-muted">Manage long-form AI assistant commentary for each match.</p>
+                    <a class="btn btn-primary" th:href="@{/admin/ai-insights}">Go to AI Insights</a>
                 </div>
             </div>
         </div>

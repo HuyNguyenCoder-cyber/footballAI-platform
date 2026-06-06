@@ -168,7 +168,7 @@ public class PredictionModelController {
         try {
             MatchDTO match = matchService.findById(predictionModel.getMatchId());
             predictionModel.setMatchLabel(match.getTeamA() + " vs " + match.getTeamB() + " | " + match.getMatchTime().format(MATCH_TIME_FORMATTER));
-            predictionModel.setMatchStatus(match.getStatus() != null ? match.getStatus().name() : "");
+            predictionModel.setMatchStatus(match.getStatus() != null ? match.getStatus().getDisplayName() : "");
         } catch (RuntimeException ex) {
             System.out.println("Runtime error: " + ex.getMessage());
         }

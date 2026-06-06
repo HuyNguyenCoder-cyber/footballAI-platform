@@ -159,7 +159,7 @@ public class TeamRecentFormController {
         try {
             MatchDTO match = matchService.findById(teamRecentForm.getMatchId());
             teamRecentForm.setMatchLabel(match.getTeamA() + " vs " + match.getTeamB() + " | " + match.getMatchTime().format(MATCH_TIME_FORMATTER));
-            teamRecentForm.setMatchStatus(match.getStatus() != null ? match.getStatus().name() : "");
+            teamRecentForm.setMatchStatus(match.getStatus() != null ? match.getStatus().getDisplayName() : "");
         } catch (RuntimeException ex) {
             System.out.println("Runtime error: " + ex.getMessage());
         }

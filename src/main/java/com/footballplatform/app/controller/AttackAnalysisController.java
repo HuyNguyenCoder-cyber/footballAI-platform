@@ -145,7 +145,7 @@ public class AttackAnalysisController {
         try {
             MatchDTO match = matchService.findById(attackAnalysis.getMatchId());
             attackAnalysis.setMatchLabel(match.getTeamA() + " vs " + match.getTeamB() + " | " + match.getMatchTime().format(MATCH_TIME_FORMATTER));
-            attackAnalysis.setMatchStatus(match.getStatus() != null ? match.getStatus().name() : "");
+            attackAnalysis.setMatchStatus(match.getStatus() != null ? match.getStatus().getDisplayName() : "");
         } catch (RuntimeException ex) {
             System.out.println("Runtime error: " + ex.getMessage());
         }

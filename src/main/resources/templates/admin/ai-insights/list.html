@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Insights</title>
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
+</head>
+<body class="bg-light">
+<div th:replace="~{fragments/navigation :: dashboardNav('dashboard')}"></div>
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">AI Insights</h1>
+            <p class="text-muted mb-0">Manage long-form AI assistant analysis for each match.</p>
+        </div>
+        <a class="btn btn-primary" th:href="@{/admin/ai-insights/new}">New AI Insight</a>
+    </div>
+
+    <div class="alert alert-success" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped align-middle mb-0">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Match</th>
+                        <th>Status</th>
+                        <th style="width: 220px;">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item : ${aiInsights}">
+                        <td th:text="${item.id}">1</td>
+                        <td th:text="${item.matchLabel}">Arsenal vs PSG | 02 Jun 2026 20:00</td>
+                        <td th:text="${item.matchStatus}">Sắp diễn ra</td>
+                        <td>
+                            <a class="btn btn-sm btn-outline-secondary me-2" th:href="@{/admin/ai-insights/{id}/edit(id=${item.id})}">Edit</a>
+                            <form th:action="@{/admin/ai-insights/{id}/delete(id=${item.id})}" method="post" class="d-inline" onsubmit="return confirm('Delete this AI Insight?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(aiInsights)}">
+                        <td colspan="4" class="text-center text-muted py-4">No AI Insights found.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

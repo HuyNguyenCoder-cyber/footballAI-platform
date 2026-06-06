@@ -132,7 +132,7 @@ public class AttackAnalysisServiceImpl implements AttackAnalysisService {
                 .analysis(entity.getAnalysis())
                 .matchLabel(buildMatchLabel(entity.getMatch()))
                 .matchStatus(entity.getMatch() != null && entity.getMatch().getStatus() != null
-                        ? entity.getMatch().getStatus().name()
+                        ? entity.getMatch().getStatus().getDisplayName()
                         : "")
                 .build();
     }

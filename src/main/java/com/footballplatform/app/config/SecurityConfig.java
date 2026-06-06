@@ -24,10 +24,13 @@ public class SecurityConfig {
         http
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/home", "/login", "/matches/*/analysis", "/key-players/*").permitAll()
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/uploads/**").permitAll()
+                        .requestMatchers("/", "/home", "/login", "/matches/*/analysis", "/key-players/*", "/error/**").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/uploads/**", "/assets/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
+                )
+                .exceptionHandling(exception -> exception
+                        .accessDeniedPage("/error/403")
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
