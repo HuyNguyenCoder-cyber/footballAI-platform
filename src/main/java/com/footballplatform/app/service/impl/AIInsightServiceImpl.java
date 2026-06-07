@@ -5,6 +5,7 @@ import com.footballplatform.app.entity.AIInsight;
 import com.footballplatform.app.entity.Match;
 import com.footballplatform.app.repository.AIInsightRepository;
 import com.footballplatform.app.repository.MatchRepository;
+import com.footballplatform.app.service.CacheInvalidationService;
 import com.footballplatform.app.service.AIInsightService;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -20,10 +21,14 @@ public class AIInsightServiceImpl implements AIInsightService {
 
     private final AIInsightRepository aiInsightRepository;
     private final MatchRepository matchRepository;
+    private final CacheInvalidationService cacheInvalidationService;
 
-    public AIInsightServiceImpl(AIInsightRepository aiInsightRepository, MatchRepository matchRepository) {
+    public AIInsightServiceImpl(AIInsightRepository aiInsightRepository,
+                                MatchRepository matchRepository,
+                                CacheInvalidationService cacheInvalidationService) {
         this.aiInsightRepository = aiInsightRepository;
         this.matchRepository = matchRepository;
+        this.cacheInvalidationService = cacheInvalidationService;
     }
 
     @Override
@@ -60,7 +65,9 @@ public class AIInsightServiceImpl implements AIInsightService {
 
         AIInsight entity = new AIInsight();
         applyDto(entity, dto);
-        return toDto(aiInsightRepository.save(entity));
+        AIInsightDTO saved = toDto(aiInsightRepository.save(entity));
+        cacheInvalidationService.evictMatchAnalysisCache(saved.getMatchId());
+        return saved;
     }
 
     @Override
@@ -73,15 +80,18 @@ public class AIInsightServiceImpl implements AIInsightService {
         }
 
         applyDto(entity, dto);
-        return toDto(aiInsightRepository.save(entity));
+        AIInsightDTO saved = toDto(aiInsightRepository.save(entity));
+        cacheInvalidationService.evictMatchAnalysisCache(saved.getMatchId());
+        return saved;
     }
 
     @Override
     public void delete(Long id) {
-        if (!aiInsightRepository.existsById(id)) {
-            throw new RuntimeException("AIInsight not found with id: " + id);
-        }
-        aiInsightRepository.deleteById(id);
+        AIInsight entity = aiInsightRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("AIInsight not found with id: " + id));
+        Long matchId = entity.getMatch() != null ? entity.getMatch().getId() : null;
+        aiInsightRepository.delete(entity);
+        cacheInvalidationService.evictMatchAnalysisCache(matchId);
     }
 
     private void applyDto(AIInsight entity, AIInsightDTO dto) {

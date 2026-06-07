@@ -5,6 +5,7 @@ import com.footballplatform.app.entity.Match;
 import com.footballplatform.app.entity.MatchPrediction;
 import com.footballplatform.app.repository.MatchPredictionRepository;
 import com.footballplatform.app.repository.MatchRepository;
+import com.footballplatform.app.service.CacheInvalidationService;
 import com.footballplatform.app.service.MatchPredictionService;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -20,11 +21,14 @@ public class MatchPredictionServiceImpl implements MatchPredictionService {
 
     private final MatchPredictionRepository matchPredictionRepository;
     private final MatchRepository matchRepository;
+    private final CacheInvalidationService cacheInvalidationService;
 
     public MatchPredictionServiceImpl(MatchPredictionRepository matchPredictionRepository,
-                                      MatchRepository matchRepository) {
+                                      MatchRepository matchRepository,
+                                      CacheInvalidationService cacheInvalidationService) {
         this.matchPredictionRepository = matchPredictionRepository;
         this.matchRepository = matchRepository;
+        this.cacheInvalidationService = cacheInvalidationService;
     }
 
     @Override
@@ -60,7 +64,9 @@ public class MatchPredictionServiceImpl implements MatchPredictionService {
         }
         MatchPrediction entity = new MatchPrediction();
         applyDto(entity, dto);
-        return toDto(matchPredictionRepository.save(entity));
+        MatchPredictionDTO saved = toDto(matchPredictionRepository.save(entity));
+        cacheInvalidationService.evictMatchAnalysisCache(saved.getMatchId());
+        return saved;
     }
 
     @Override
@@ -71,15 +77,18 @@ public class MatchPredictionServiceImpl implements MatchPredictionService {
             throw new RuntimeException("Trận đấu này đã có AI Prediction.");
         }
         applyDto(entity, dto);
-        return toDto(matchPredictionRepository.save(entity));
+        MatchPredictionDTO saved = toDto(matchPredictionRepository.save(entity));
+        cacheInvalidationService.evictMatchAnalysisCache(saved.getMatchId());
+        return saved;
     }
 
     @Override
     public void delete(Long id) {
-        if (!matchPredictionRepository.existsById(id)) {
-            throw new RuntimeException("MatchPrediction not found with id: " + id);
-        }
-        matchPredictionRepository.deleteById(id);
+        MatchPrediction entity = matchPredictionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("MatchPrediction not found with id: " + id));
+        Long matchId = entity.getMatch() != null ? entity.getMatch().getId() : null;
+        matchPredictionRepository.delete(entity);
+        cacheInvalidationService.evictMatchAnalysisCache(matchId);
     }
 
     private void applyDto(MatchPrediction entity, MatchPredictionDTO dto) {

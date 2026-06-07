@@ -5,6 +5,7 @@ import com.footballplatform.app.entity.HeadToHead;
 import com.footballplatform.app.entity.Match;
 import com.footballplatform.app.repository.HeadToHeadRepository;
 import com.footballplatform.app.repository.MatchRepository;
+import com.footballplatform.app.service.CacheInvalidationService;
 import com.footballplatform.app.service.HeadToHeadService;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -20,10 +21,14 @@ public class HeadToHeadServiceImpl implements HeadToHeadService {
 
     private final HeadToHeadRepository headToHeadRepository;
     private final MatchRepository matchRepository;
+    private final CacheInvalidationService cacheInvalidationService;
 
-    public HeadToHeadServiceImpl(HeadToHeadRepository headToHeadRepository, MatchRepository matchRepository) {
+    public HeadToHeadServiceImpl(HeadToHeadRepository headToHeadRepository,
+                                 MatchRepository matchRepository,
+                                 CacheInvalidationService cacheInvalidationService) {
         this.headToHeadRepository = headToHeadRepository;
         this.matchRepository = matchRepository;
+        this.cacheInvalidationService = cacheInvalidationService;
     }
 
     @Override
@@ -60,7 +65,9 @@ public class HeadToHeadServiceImpl implements HeadToHeadService {
 
         HeadToHead entity = new HeadToHead();
         applyDto(entity, dto);
-        return toDto(headToHeadRepository.save(entity));
+        HeadToHeadDTO saved = toDto(headToHeadRepository.save(entity));
+        cacheInvalidationService.evictMatchAnalysisCache(saved.getMatchId());
+        return saved;
     }
 
     @Override
@@ -73,15 +80,18 @@ public class HeadToHeadServiceImpl implements HeadToHeadService {
         }
 
         applyDto(entity, dto);
-        return toDto(headToHeadRepository.save(entity));
+        HeadToHeadDTO saved = toDto(headToHeadRepository.save(entity));
+        cacheInvalidationService.evictMatchAnalysisCache(saved.getMatchId());
+        return saved;
     }
 
     @Override
     public void delete(Long id) {
-        if (!headToHeadRepository.existsById(id)) {
-            throw new RuntimeException("HeadToHead not found with id: " + id);
-        }
-        headToHeadRepository.deleteById(id);
+        HeadToHead entity = headToHeadRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("HeadToHead not found with id: " + id));
+        Long matchId = entity.getMatch() != null ? entity.getMatch().getId() : null;
+        headToHeadRepository.delete(entity);
+        cacheInvalidationService.evictMatchAnalysisCache(matchId);
     }
 
     private void applyDto(HeadToHead entity, HeadToHeadDTO dto) {

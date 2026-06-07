@@ -4,6 +4,7 @@ import com.footballplatform.app.dto.KeyPlayerDTO;
 import com.footballplatform.app.dto.MatchDTO;
 import com.footballplatform.app.service.KeyPlayerService;
 import com.footballplatform.app.service.MatchService;
+import com.footballplatform.app.service.SeoService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,10 +16,14 @@ public class KeyPlayerViewController {
 
     private final KeyPlayerService keyPlayerService;
     private final MatchService matchService;
+    private final SeoService seoService;
 
-    public KeyPlayerViewController(KeyPlayerService keyPlayerService, MatchService matchService) {
+    public KeyPlayerViewController(KeyPlayerService keyPlayerService,
+                                   MatchService matchService,
+                                   SeoService seoService) {
         this.keyPlayerService = keyPlayerService;
         this.matchService = matchService;
+        this.seoService = seoService;
     }
 
     @GetMapping("/key-players/{id}")
@@ -30,6 +35,7 @@ public class KeyPlayerViewController {
 
             model.addAttribute("keyPlayer", keyPlayer);
             model.addAttribute("match", match);
+            model.addAttribute("seo", seoService.buildKeyPlayerSeo(keyPlayer, match));
             return "key-player/detail";
         } catch (RuntimeException ex) {
             System.out.println("Runtime error: " + ex.getMessage());

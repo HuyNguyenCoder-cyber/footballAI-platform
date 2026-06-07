@@ -5,6 +5,7 @@ import com.footballplatform.app.entity.BetRecommendation;
 import com.footballplatform.app.entity.Match;
 import com.footballplatform.app.repository.BetRecommendationRepository;
 import com.footballplatform.app.repository.MatchRepository;
+import com.footballplatform.app.service.CacheInvalidationService;
 import com.footballplatform.app.service.BetRecommendationService;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -20,11 +21,14 @@ public class BetRecommendationServiceImpl implements BetRecommendationService {
 
     private final BetRecommendationRepository betRecommendationRepository;
     private final MatchRepository matchRepository;
+    private final CacheInvalidationService cacheInvalidationService;
 
     public BetRecommendationServiceImpl(BetRecommendationRepository betRecommendationRepository,
-                                        MatchRepository matchRepository) {
+                                        MatchRepository matchRepository,
+                                        CacheInvalidationService cacheInvalidationService) {
         this.betRecommendationRepository = betRecommendationRepository;
         this.matchRepository = matchRepository;
+        this.cacheInvalidationService = cacheInvalidationService;
     }
 
     @Override
@@ -52,7 +56,9 @@ public class BetRecommendationServiceImpl implements BetRecommendationService {
     public BetRecommendationDTO create(BetRecommendationDTO dto) {
         BetRecommendation entity = new BetRecommendation();
         applyDto(entity, dto);
-        return toDto(betRecommendationRepository.save(entity));
+        BetRecommendationDTO saved = toDto(betRecommendationRepository.save(entity));
+        cacheInvalidationService.evictMatchAnalysisCache(saved.getMatchId());
+        return saved;
     }
 
     @Override
@@ -60,15 +66,18 @@ public class BetRecommendationServiceImpl implements BetRecommendationService {
         BetRecommendation entity = betRecommendationRepository.findById(dto.getId())
                 .orElseThrow(() -> new RuntimeException("BetRecommendation not found with id: " + dto.getId()));
         applyDto(entity, dto);
-        return toDto(betRecommendationRepository.save(entity));
+        BetRecommendationDTO saved = toDto(betRecommendationRepository.save(entity));
+        cacheInvalidationService.evictMatchAnalysisCache(saved.getMatchId());
+        return saved;
     }
 
     @Override
     public void delete(Long id) {
-        if (!betRecommendationRepository.existsById(id)) {
-            throw new RuntimeException("BetRecommendation not found with id: " + id);
-        }
-        betRecommendationRepository.deleteById(id);
+        BetRecommendation entity = betRecommendationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("BetRecommendation not found with id: " + id));
+        Long matchId = entity.getMatch() != null ? entity.getMatch().getId() : null;
+        betRecommendationRepository.delete(entity);
+        cacheInvalidationService.evictMatchAnalysisCache(matchId);
     }
 
     private void applyDto(BetRecommendation entity, BetRecommendationDTO dto) {

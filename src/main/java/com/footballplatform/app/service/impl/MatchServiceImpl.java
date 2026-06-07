@@ -7,13 +7,16 @@ import com.footballplatform.app.entity.Match;
 import com.footballplatform.app.entity.MatchStatus;
 import com.footballplatform.app.repository.CompetitionRepository;
 import com.footballplatform.app.repository.MatchRepository;
+import com.footballplatform.app.service.CacheInvalidationService;
 import com.footballplatform.app.service.MatchService;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.UUID;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,15 +26,26 @@ import org.springframework.web.multipart.MultipartFile;
 @Transactional
 public class MatchServiceImpl implements MatchService {
 
+    private static final Set<String> ALLOWED_EXTENSIONS = Set.of(".jpg", ".jpeg", ".png", ".webp", ".gif");
+    private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of(
+            "image/jpeg",
+            "image/png",
+            "image/webp",
+            "image/gif"
+    );
+
     private final MatchRepository matchRepository;
     private final CompetitionRepository competitionRepository;
+    private final CacheInvalidationService cacheInvalidationService;
     private final Path uploadDir;
 
     public MatchServiceImpl(MatchRepository matchRepository,
                             CompetitionRepository competitionRepository,
+                            CacheInvalidationService cacheInvalidationService,
                             @Value("${app.upload.dir:uploads}") String uploadDir) {
         this.matchRepository = matchRepository;
         this.competitionRepository = competitionRepository;
+        this.cacheInvalidationService = cacheInvalidationService;
         this.uploadDir = Paths.get(uploadDir).toAbsolutePath().normalize().resolve("matches");
 
         try {
@@ -71,7 +85,10 @@ public class MatchServiceImpl implements MatchService {
     public MatchDTO create(MatchDTO dto) {
         Match match = new Match();
         applyDto(match, dto);
-        return toDto(matchRepository.save(match));
+        MatchDTO saved = toDto(matchRepository.save(match));
+        cacheInvalidationService.evictHomePageCache();
+        cacheInvalidationService.evictMatchAnalysisCache(saved.getId());
+        return saved;
     }
 
     @Override
@@ -79,7 +96,10 @@ public class MatchServiceImpl implements MatchService {
         Match match = matchRepository.findById(dto.getId())
                 .orElseThrow(() -> new RuntimeException("Match not found with id: " + dto.getId()));
         applyDto(match, dto);
-        return toDto(matchRepository.save(match));
+        MatchDTO saved = toDto(matchRepository.save(match));
+        cacheInvalidationService.evictHomePageCache();
+        cacheInvalidationService.evictMatchAnalysisCache(saved.getId());
+        return saved;
     }
 
     @Override
@@ -88,6 +108,8 @@ public class MatchServiceImpl implements MatchService {
             throw new RuntimeException("Match not found with id: " + id);
         }
         matchRepository.deleteById(id);
+        cacheInvalidationService.evictHomePageCache();
+        cacheInvalidationService.evictMatchAnalysisCache(id);
     }
 
     private void applyDto(Match match, MatchDTO dto) {
@@ -138,17 +160,42 @@ public class MatchServiceImpl implements MatchService {
 
     private String saveFile(MultipartFile file) {
         try {
+            validateLogoFile(file);
+
             String originalFilename = file.getOriginalFilename();
-            String cleanedName = originalFilename == null ? "logo" : originalFilename.replaceAll("[\\\\/]+", "_");
-            if (cleanedName.length() > 150) {
-                cleanedName = cleanedName.substring(0, 150);
-            }
-            String storedName = UUID.randomUUID() + "_" + cleanedName;
+            String extension = extractExtension(originalFilename);
+            String storedName = UUID.randomUUID() + extension;
             Path targetPath = uploadDir.resolve(storedName);
             Files.copy(file.getInputStream(), targetPath);
             return "/uploads/matches/" + storedName;
         } catch (IOException ex) {
             throw new RuntimeException("Failed to upload file: " + file.getOriginalFilename(), ex);
         }
+    }
+
+    private void validateLogoFile(MultipartFile file) {
+        String extension = extractExtension(file.getOriginalFilename());
+        if (!ALLOWED_EXTENSIONS.contains(extension)) {
+            throw new RuntimeException("Only JPG, JPEG, PNG, WEBP, and GIF files are allowed.");
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase(Locale.ROOT))) {
+            throw new RuntimeException("Invalid image content type.");
+        }
+    }
+
+    private String extractExtension(String originalFilename) {
+        if (originalFilename == null || originalFilename.isBlank()) {
+            throw new RuntimeException("Uploaded file must have a valid filename.");
+        }
+
+        String cleaned = originalFilename.trim().replace("\\", "/");
+        int lastDotIndex = cleaned.lastIndexOf('.');
+        if (lastDotIndex < 0 || lastDotIndex == cleaned.length() - 1) {
+            throw new RuntimeException("Uploaded file must have a valid extension.");
+        }
+
+        return cleaned.substring(lastDotIndex).toLowerCase(Locale.ROOT);
     }
 }

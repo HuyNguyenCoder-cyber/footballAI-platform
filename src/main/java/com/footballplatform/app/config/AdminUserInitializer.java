@@ -15,9 +15,13 @@ public class AdminUserInitializer {
     @Bean
     public CommandLineRunner seedAdminUser(UserRepository userRepository,
                                            PasswordEncoder passwordEncoder,
-                                           @Value("${app.security.default-admin.username:admin}") String username,
-                                           @Value("${app.security.default-admin.password:admin123}") String password) {
+                                           @Value("${app.security.default-admin.username:}") String username,
+                                           @Value("${app.security.default-admin.password:}") String password) {
         return args -> {
+            if (username == null || username.isBlank() || password == null || password.isBlank()) {
+                return;
+            }
+
             if (userRepository.existsByUsername(username)) {
                 return;
             }

@@ -63,6 +63,9 @@ Thumbs.db
 # Local Environment
 ############################
 .env
+.env.*
+!.env.example
+uploads/
 
 ############################
 # Spring Profile Config

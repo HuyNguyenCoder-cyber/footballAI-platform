@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Football AI</title>
+  <desc id="desc">Ảnh đại diện mặc định cho website Football AI</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d6efd"/>
+      <stop offset="100%" stop-color="#0b1f44"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="930" cy="140" r="140" fill="rgba(255,255,255,0.08)"/>
+  <circle cx="180" cy="520" r="180" fill="rgba(255,255,255,0.06)"/>
+  <g fill="#ffffff">
+    <text x="120" y="250" font-family="Segoe UI, Arial, sans-serif" font-size="84" font-weight="700">Football AI</text>
+    <text x="120" y="330" font-family="Segoe UI, Arial, sans-serif" font-size="34" opacity="0.92">
+      Nhận định bóng đá bằng AI, phân tích trận đấu và dự đoán tỷ số
+    </text>
+    <text x="120" y="410" font-family="Segoe UI, Arial, sans-serif" font-size="26" opacity="0.82">
+      Phong độ • Đối đầu • Đội hình • Tấn công • Phòng ngự
+    </text>
+  </g>
+</svg>

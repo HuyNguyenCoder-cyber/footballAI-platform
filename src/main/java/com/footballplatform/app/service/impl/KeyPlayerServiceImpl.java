@@ -5,6 +5,7 @@ import com.footballplatform.app.entity.KeyPlayer;
 import com.footballplatform.app.entity.Match;
 import com.footballplatform.app.repository.KeyPlayerRepository;
 import com.footballplatform.app.repository.MatchRepository;
+import com.footballplatform.app.service.CacheInvalidationService;
 import com.footballplatform.app.service.KeyPlayerService;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
@@ -21,10 +22,14 @@ public class KeyPlayerServiceImpl implements KeyPlayerService {
 
     private final KeyPlayerRepository keyPlayerRepository;
     private final MatchRepository matchRepository;
+    private final CacheInvalidationService cacheInvalidationService;
 
-    public KeyPlayerServiceImpl(KeyPlayerRepository keyPlayerRepository, MatchRepository matchRepository) {
+    public KeyPlayerServiceImpl(KeyPlayerRepository keyPlayerRepository,
+                                MatchRepository matchRepository,
+                                CacheInvalidationService cacheInvalidationService) {
         this.keyPlayerRepository = keyPlayerRepository;
         this.matchRepository = matchRepository;
+        this.cacheInvalidationService = cacheInvalidationService;
     }
 
     @Override
@@ -55,7 +60,9 @@ public class KeyPlayerServiceImpl implements KeyPlayerService {
     public KeyPlayerDTO create(KeyPlayerDTO dto) {
         KeyPlayer entity = new KeyPlayer();
         applyDto(entity, dto);
-        return toDto(keyPlayerRepository.save(entity));
+        KeyPlayerDTO saved = toDto(keyPlayerRepository.save(entity));
+        cacheInvalidationService.evictMatchAnalysisCache(saved.getMatchId());
+        return saved;
     }
 
     @Override
@@ -63,15 +70,18 @@ public class KeyPlayerServiceImpl implements KeyPlayerService {
         KeyPlayer entity = keyPlayerRepository.findById(dto.getId())
                 .orElseThrow(() -> new RuntimeException("KeyPlayer not found with id: " + dto.getId()));
         applyDto(entity, dto);
-        return toDto(keyPlayerRepository.save(entity));
+        KeyPlayerDTO saved = toDto(keyPlayerRepository.save(entity));
+        cacheInvalidationService.evictMatchAnalysisCache(saved.getMatchId());
+        return saved;
     }
 
     @Override
     public void delete(Long id) {
-        if (!keyPlayerRepository.existsById(id)) {
-            throw new RuntimeException("KeyPlayer not found with id: " + id);
-        }
-        keyPlayerRepository.deleteById(id);
+        KeyPlayer entity = keyPlayerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("KeyPlayer not found with id: " + id));
+        Long matchId = entity.getMatch() != null ? entity.getMatch().getId() : null;
+        keyPlayerRepository.delete(entity);
+        cacheInvalidationService.evictMatchAnalysisCache(matchId);
     }
 
     private void applyDto(KeyPlayer entity, KeyPlayerDTO dto) {

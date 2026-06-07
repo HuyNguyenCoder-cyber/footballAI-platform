@@ -6,6 +6,7 @@ import com.footballplatform.app.entity.TeamRecentForm;
 import com.footballplatform.app.entity.TeamSide;
 import com.footballplatform.app.repository.MatchRepository;
 import com.footballplatform.app.repository.TeamRecentFormRepository;
+import com.footballplatform.app.service.CacheInvalidationService;
 import com.footballplatform.app.service.TeamRecentFormService;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
@@ -22,11 +23,14 @@ public class TeamRecentFormServiceImpl implements TeamRecentFormService {
 
     private final TeamRecentFormRepository teamRecentFormRepository;
     private final MatchRepository matchRepository;
+    private final CacheInvalidationService cacheInvalidationService;
 
     public TeamRecentFormServiceImpl(TeamRecentFormRepository teamRecentFormRepository,
-                                     MatchRepository matchRepository) {
+                                     MatchRepository matchRepository,
+                                     CacheInvalidationService cacheInvalidationService) {
         this.teamRecentFormRepository = teamRecentFormRepository;
         this.matchRepository = matchRepository;
+        this.cacheInvalidationService = cacheInvalidationService;
     }
 
     @Override
@@ -75,7 +79,9 @@ public class TeamRecentFormServiceImpl implements TeamRecentFormService {
 
         TeamRecentForm entity = new TeamRecentForm();
         applyDto(entity, dto);
-        return toDto(teamRecentFormRepository.save(entity));
+        TeamRecentFormDTO saved = toDto(teamRecentFormRepository.save(entity));
+        cacheInvalidationService.evictMatchAnalysisCache(saved.getMatchId());
+        return saved;
     }
 
     @Override
@@ -88,15 +94,18 @@ public class TeamRecentFormServiceImpl implements TeamRecentFormService {
         }
 
         applyDto(entity, dto);
-        return toDto(teamRecentFormRepository.save(entity));
+        TeamRecentFormDTO saved = toDto(teamRecentFormRepository.save(entity));
+        cacheInvalidationService.evictMatchAnalysisCache(saved.getMatchId());
+        return saved;
     }
 
     @Override
     public void delete(Long id) {
-        if (!teamRecentFormRepository.existsById(id)) {
-            throw new RuntimeException("TeamRecentForm not found with id: " + id);
-        }
-        teamRecentFormRepository.deleteById(id);
+        TeamRecentForm entity = teamRecentFormRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("TeamRecentForm not found with id: " + id));
+        Long matchId = entity.getMatch() != null ? entity.getMatch().getId() : null;
+        teamRecentFormRepository.delete(entity);
+        cacheInvalidationService.evictMatchAnalysisCache(matchId);
     }
 
     private void applyDto(TeamRecentForm entity, TeamRecentFormDTO dto) {

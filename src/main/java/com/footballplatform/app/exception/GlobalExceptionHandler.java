@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.web.servlet.support.RequestContextUtils;
@@ -42,6 +43,17 @@ public class GlobalExceptionHandler {
         model.addAttribute("errorTitle", "Đã có lỗi xảy ra");
         model.addAttribute("errorMessage", "Yêu cầu không hợp lệ hoặc không thể xử lý vào lúc này.");
         return "error/500";
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public String handleMissingServletRequestParameter(MissingServletRequestParameterException ex,
+                                                       HttpServletResponse response,
+                                                       Model model) {
+        System.out.println("Runtime error: " + ex.getMessage());
+        response.setStatus(HttpStatus.BAD_REQUEST.value());
+        model.addAttribute("errorTitle", "Yêu cầu không hợp lệ");
+        model.addAttribute("errorMessage", "Yêu cầu bạn gửi lên thiếu tham số hoặc không đúng định dạng.");
+        return "error/400";
     }
 
     @ExceptionHandler(NoResourceFoundException.class)

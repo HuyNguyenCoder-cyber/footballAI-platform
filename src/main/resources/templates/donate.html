@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${seo.title}">Ủng hộ Football AI | Donate</title>
+    <meta name="description" th:content="${seo.description}">
+    <link rel="canonical" th:href="${seo.canonicalUrl}">
+    <meta property="og:title" th:content="${seo.ogTitle}">
+    <meta property="og:description" th:content="${seo.ogDescription}">
+    <meta property="og:type" th:content="${seo.ogType}">
+    <meta property="og:url" th:content="${seo.ogUrl}">
+    <meta property="og:image" th:content="${seo.ogImage}">
+    <meta name="twitter:card" th:content="${seo.twitterCard}">
+    <meta name="twitter:title" th:content="${seo.twitterTitle}">
+    <meta name="twitter:description" th:content="${seo.twitterDescription}">
+    <meta name="robots" content="index,follow">
+    <link rel="icon" th:href="@{/assets/images/og-default.svg}">
+    <link rel="stylesheet" th:href="@{/assets/css/donate.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<div class="donate-container">
+    <div style="margin-bottom: 20px;">
+        <a th:href="@{/}"
+           style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; text-decoration: none; color: #1f2937; background: #ffffff; border: 1px solid #d1d5db; font-weight: 600; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);">
+            <span aria-hidden="true">&larr;</span>
+            <span>Quay lại trang chủ</span>
+        </a>
+    </div>
+
+    <div class="donate-header">
+        <h2>ỦNG HỘ ADMIN LY CÀ PHÊ NHA</h2>
+        <p>Nếu bạn yêu thích các sản phẩm của tôi, bạn có thể mời tôi một ly cà phê qua các hình thức dưới đây. Cảm ơn sự hỗ trợ của bạn!</p>
+    </div>
+
+    <div class="donate-content">
+        <div class="qr-section">
+            <img src="/assets/images/qr.jpg" alt="Mã QR Donate" class="qr-code">
+            <span class="qr-hint"><i class="fa-solid fa-qrcode"></i> Quét mã để chuyển khoản nhanh</span>
+        </div>
+
+        <div class="info-section">
+            <h3>Thông Tin Chuyển Khoản</h3>
+
+            <div class="info-box">
+                <span class="info-label">Ngân hàng:</span>
+                <strong class="info-value">MB BANK</strong>
+            </div>
+
+            <div class="info-box">
+                <span class="info-label">Số tài khoản:</span>
+                <div class="account-number-wrapper">
+                    <strong class="info-value" id="account-number">0786871062</strong>
+                    <button class="btn-copy" onclick="copyAccountNumber()" title="Sao chép số tài khoản">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <span class="info-label">Chủ tài khoản</span>
+                <strong class="info-value">Nguyễn Thành Huy</strong>
+            </div>
+
+            <hr class="divider">
+
+            <a href="https://www.facebook.com/profile.php?id=61567658972848" target="_blank" class="btn-facebook">
+                <i class="fa-brands fa-facebook"></i> FACEBOOK ADMIN
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function copyAccountNumber() {
+        const accountNumber = document.getElementById('account-number').innerText;
+        navigator.clipboard.writeText(accountNumber).then(() => {
+            alert('Đã sao chép thành công!');
+        }).catch(err => {
+            console.error('Lỗi khi sao chép: ', err);
+        });
+    }
+</script>
+</body>
+</html>

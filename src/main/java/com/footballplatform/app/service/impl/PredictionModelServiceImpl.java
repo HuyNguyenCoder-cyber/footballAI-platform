@@ -5,6 +5,7 @@ import com.footballplatform.app.entity.Match;
 import com.footballplatform.app.entity.PredictionModel;
 import com.footballplatform.app.repository.MatchRepository;
 import com.footballplatform.app.repository.PredictionModelRepository;
+import com.footballplatform.app.service.CacheInvalidationService;
 import com.footballplatform.app.service.PredictionModelService;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -20,11 +21,14 @@ public class PredictionModelServiceImpl implements PredictionModelService {
 
     private final PredictionModelRepository predictionModelRepository;
     private final MatchRepository matchRepository;
+    private final CacheInvalidationService cacheInvalidationService;
 
     public PredictionModelServiceImpl(PredictionModelRepository predictionModelRepository,
-                                      MatchRepository matchRepository) {
+                                      MatchRepository matchRepository,
+                                      CacheInvalidationService cacheInvalidationService) {
         this.predictionModelRepository = predictionModelRepository;
         this.matchRepository = matchRepository;
+        this.cacheInvalidationService = cacheInvalidationService;
     }
 
     @Override
@@ -62,7 +66,9 @@ public class PredictionModelServiceImpl implements PredictionModelService {
 
         PredictionModel entity = new PredictionModel();
         applyDto(entity, dto);
-        return toDto(predictionModelRepository.save(entity));
+        PredictionModelDTO saved = toDto(predictionModelRepository.save(entity));
+        cacheInvalidationService.evictMatchAnalysisCache(saved.getMatchId());
+        return saved;
     }
 
     @Override
@@ -75,15 +81,18 @@ public class PredictionModelServiceImpl implements PredictionModelService {
         }
 
         applyDto(entity, dto);
-        return toDto(predictionModelRepository.save(entity));
+        PredictionModelDTO saved = toDto(predictionModelRepository.save(entity));
+        cacheInvalidationService.evictMatchAnalysisCache(saved.getMatchId());
+        return saved;
     }
 
     @Override
     public void delete(Long id) {
-        if (!predictionModelRepository.existsById(id)) {
-            throw new RuntimeException("PredictionModel not found with id: " + id);
-        }
-        predictionModelRepository.deleteById(id);
+        PredictionModel entity = predictionModelRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("PredictionModel not found with id: " + id));
+        Long matchId = entity.getMatch() != null ? entity.getMatch().getId() : null;
+        predictionModelRepository.delete(entity);
+        cacheInvalidationService.evictMatchAnalysisCache(matchId);
     }
 
     private void applyDto(PredictionModel entity, PredictionModelDTO dto) {

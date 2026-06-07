@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login</title>
+    <meta name="robots" content="noindex,nofollow">
     <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
 </head>
 <body class="bg-light">
@@ -26,10 +27,16 @@
                     </div>
 
                     <div class="alert alert-danger" th:if="${param.error}">
-                        Invalid username or password.
+                        Sai tên đăng nhập hoặc mật khẩu.
+                    </div>
+                    <div class="alert alert-warning" th:if="${param.locked}">
+                        Tài Khoản này đã bị khóa do spam quá nhiều.
+                    </div>
+                    <div class="alert alert-warning" th:if="${param.rateLimit}">
+                        Bạn đang gửi quá nhiều đăng nhập, thử lại sau.
                     </div>
                     <div class="alert alert-success" th:if="${param.logout}">
-                        You have been logged out.
+                        Bạn đã đăng xuất
                     </div>
 
                     <form th:action="@{/login}" method="post">

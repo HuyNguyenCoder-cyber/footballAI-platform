@@ -11,10 +11,15 @@ RUN mvn clean package -DskipTests
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 
-RUN mkdir -p /app/uploads
+RUN groupadd --system appgroup \
+    && useradd --system --gid appgroup --create-home --home-dir /home/appuser appuser \
+    && mkdir -p /app/uploads \
+    && chown -R appuser:appgroup /app /home/appuser
 
-COPY --from=build /app/target/football-platfrom-1.0-SNAPSHOT.jar /app/app.jar
+COPY --from=build --chown=appuser:appgroup /app/target/football-platfrom-1.0-SNAPSHOT.jar /app/app.jar
 
 EXPOSE 8080
+
+USER appuser
 
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]

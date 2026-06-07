@@ -5,6 +5,7 @@ import com.footballplatform.app.entity.DefenseAnalysis;
 import com.footballplatform.app.entity.Match;
 import com.footballplatform.app.repository.DefenseAnalysisRepository;
 import com.footballplatform.app.repository.MatchRepository;
+import com.footballplatform.app.service.CacheInvalidationService;
 import com.footballplatform.app.service.DefenseAnalysisService;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -20,11 +21,14 @@ public class DefenseAnalysisServiceImpl implements DefenseAnalysisService {
 
     private final DefenseAnalysisRepository defenseAnalysisRepository;
     private final MatchRepository matchRepository;
+    private final CacheInvalidationService cacheInvalidationService;
 
     public DefenseAnalysisServiceImpl(DefenseAnalysisRepository defenseAnalysisRepository,
-                                      MatchRepository matchRepository) {
+                                      MatchRepository matchRepository,
+                                      CacheInvalidationService cacheInvalidationService) {
         this.defenseAnalysisRepository = defenseAnalysisRepository;
         this.matchRepository = matchRepository;
+        this.cacheInvalidationService = cacheInvalidationService;
     }
 
     @Override
@@ -61,7 +65,9 @@ public class DefenseAnalysisServiceImpl implements DefenseAnalysisService {
 
         DefenseAnalysis entity = new DefenseAnalysis();
         applyDto(entity, dto);
-        return toDto(defenseAnalysisRepository.save(entity));
+        DefenseAnalysisDTO saved = toDto(defenseAnalysisRepository.save(entity));
+        cacheInvalidationService.evictMatchAnalysisCache(saved.getMatchId());
+        return saved;
     }
 
     @Override
@@ -74,15 +80,18 @@ public class DefenseAnalysisServiceImpl implements DefenseAnalysisService {
         }
 
         applyDto(entity, dto);
-        return toDto(defenseAnalysisRepository.save(entity));
+        DefenseAnalysisDTO saved = toDto(defenseAnalysisRepository.save(entity));
+        cacheInvalidationService.evictMatchAnalysisCache(saved.getMatchId());
+        return saved;
     }
 
     @Override
     public void delete(Long id) {
-        if (!defenseAnalysisRepository.existsById(id)) {
-            throw new RuntimeException("DefenseAnalysis not found with id: " + id);
-        }
-        defenseAnalysisRepository.deleteById(id);
+        DefenseAnalysis entity = defenseAnalysisRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("DefenseAnalysis not found with id: " + id));
+        Long matchId = entity.getMatch() != null ? entity.getMatch().getId() : null;
+        defenseAnalysisRepository.delete(entity);
+        cacheInvalidationService.evictMatchAnalysisCache(matchId);
     }
 
     private void applyDto(DefenseAnalysis entity, DefenseAnalysisDTO dto) {

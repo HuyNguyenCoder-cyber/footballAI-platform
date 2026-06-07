@@ -1,0 +1,179 @@
+/* Reset định dạng cơ bản */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f4f6f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Container chính */
+.donate-container {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    max-width: 700px;
+    width: 100%;
+    padding: 40px;
+}
+
+/* Header */
+.donate-header {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.donate-header h2 {
+    color: #2c3e50;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.donate-header p {
+    color: #7f8c8d;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* Bố cục nội dung chia làm 2 bên */
+.donate-content {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Bên trái: QR Code */
+.qr-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-right: 1px solid #ecf0f1;
+    padding-right: 20px;
+}
+
+.qr-code {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px;
+    background: #fff;
+}
+
+.qr-hint {
+    font-size: 12px;
+    color: #95a5a6;
+    margin-top: 12px;
+}
+
+/* Bên phải: Thông tin tài khoản */
+.info-section {
+    flex: 1.2;
+}
+
+.info-section h3 {
+    color: #2c3e50;
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.info-box {
+    margin-bottom: 15px;
+}
+
+.info-label {
+    display: block;
+    font-size: 12px;
+    color: #95a5a6;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.info-value {
+    color: #34495e;
+    font-size: 16px;
+}
+
+/* Khu vực STK có nút copy */
+.account-number-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-copy {
+    background: none;
+    border: none;
+    color: #27ae60; /* Màu xanh lá làm điểm nhấn */
+    cursor: pointer;
+    font-size: 16px;
+    transition: color 0.2s;
+    padding: 2px 5px;
+}
+
+.btn-copy:hover {
+    color: #219653;
+}
+
+.divider {
+    border: 0;
+    border-top: 1px solid #ecf0f1;
+    margin: 25px 0;
+}
+
+/* Nút bấm Facebook màu xanh lá nổi bật */
+.btn-facebook {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background-color: #27ae60; /* Thay đổi thành nút xanh lá chuyên nghiệp */
+    color: #ffffff;
+    text-decoration: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 15px;
+    transition: background-color 0.2s, transform 0.1s;
+    width: 100%;
+    text-align: center;
+}
+
+.btn-facebook:hover {
+    background-color: #219653;
+}
+
+.btn-facebook:active {
+    transform: scale(0.98);
+}
+
+/* Responsive cho thiết bị di động */
+@media (max-width: 600px) {
+    .donate-content {
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .qr-section {
+        border-right: none;
+        border-bottom: 1px solid #ecf0f1;
+        padding-right: 0;
+        padding-bottom: 30px;
+        width: 100%;
+    }
+
+    .donate-container {
+        padding: 20px;
+    }
+}

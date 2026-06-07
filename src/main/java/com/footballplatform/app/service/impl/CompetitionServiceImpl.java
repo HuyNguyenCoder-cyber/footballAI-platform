@@ -3,6 +3,7 @@ package com.footballplatform.app.service.impl;
 import com.footballplatform.app.dto.CompetitionDTO;
 import com.footballplatform.app.entity.Competition;
 import com.footballplatform.app.repository.CompetitionRepository;
+import com.footballplatform.app.service.CacheInvalidationService;
 import com.footballplatform.app.service.CompetitionService;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -13,9 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class CompetitionServiceImpl implements CompetitionService {
 
     private final CompetitionRepository competitionRepository;
+    private final CacheInvalidationService cacheInvalidationService;
 
-    public CompetitionServiceImpl(CompetitionRepository competitionRepository) {
+    public CompetitionServiceImpl(CompetitionRepository competitionRepository,
+                                  CacheInvalidationService cacheInvalidationService) {
         this.competitionRepository = competitionRepository;
+        this.cacheInvalidationService = cacheInvalidationService;
     }
 
     @Override
@@ -42,7 +46,10 @@ public class CompetitionServiceImpl implements CompetitionService {
 
         Competition competition = new Competition();
         competition.setName(normalizedName);
-        return toDto(competitionRepository.save(competition));
+        CompetitionDTO saved = toDto(competitionRepository.save(competition));
+        cacheInvalidationService.evictHomePageCache();
+        cacheInvalidationService.evictAllMatchAnalysisCache();
+        return saved;
     }
 
     @Override
@@ -54,7 +61,10 @@ public class CompetitionServiceImpl implements CompetitionService {
         ensureNameNotDuplicate(normalizedName, competition.getId());
 
         competition.setName(normalizedName);
-        return toDto(competitionRepository.save(competition));
+        CompetitionDTO saved = toDto(competitionRepository.save(competition));
+        cacheInvalidationService.evictHomePageCache();
+        cacheInvalidationService.evictAllMatchAnalysisCache();
+        return saved;
     }
 
     @Override
@@ -63,6 +73,8 @@ public class CompetitionServiceImpl implements CompetitionService {
             throw new RuntimeException("Competition not found with id: " + id);
         }
         competitionRepository.deleteById(id);
+        cacheInvalidationService.evictHomePageCache();
+        cacheInvalidationService.evictAllMatchAnalysisCache();
     }
 
     private CompetitionDTO toDto(Competition competition) {

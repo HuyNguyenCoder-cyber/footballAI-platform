@@ -1,10 +1,25 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+﻿<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${keyPlayer.playerName + ' - Key Player Detail'}">Key Player Detail</title>
+    <title th:text="${seo.title}">Bukayo Saka - Cầu thủ chủ chốt | Football AI</title>
+    <meta name="description" th:content="${seo.description}">
+    <link rel="canonical" th:href="${seo.canonicalUrl}">
+    <meta property="og:title" th:content="${seo.ogTitle}">
+    <meta property="og:description" th:content="${seo.ogDescription}">
+    <meta property="og:type" th:content="${seo.ogType}">
+    <meta property="og:url" th:content="${seo.ogUrl}">
+    <meta property="og:image" th:content="${seo.ogImage}">
+    <meta name="twitter:card" th:content="${seo.twitterCard}">
+    <meta name="twitter:title" th:content="${seo.twitterTitle}">
+    <meta name="twitter:description" th:content="${seo.twitterDescription}">
+    <meta name="robots" content="index,follow">
+    <link rel="icon" th:href="@{/assets/images/og-default.svg}">
     <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
+    <script type="application/ld+json" th:utext="${seo.structuredDataJson}">
+        {}
+    </script>
     <style>
         :root {
             --page-bg: #f4f7fb;

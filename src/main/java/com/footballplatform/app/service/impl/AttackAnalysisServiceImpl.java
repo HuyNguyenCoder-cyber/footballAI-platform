@@ -5,6 +5,7 @@ import com.footballplatform.app.entity.AttackAnalysis;
 import com.footballplatform.app.entity.Match;
 import com.footballplatform.app.repository.AttackAnalysisRepository;
 import com.footballplatform.app.repository.MatchRepository;
+import com.footballplatform.app.service.CacheInvalidationService;
 import com.footballplatform.app.service.AttackAnalysisService;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -20,11 +21,14 @@ public class AttackAnalysisServiceImpl implements AttackAnalysisService {
 
     private final AttackAnalysisRepository attackAnalysisRepository;
     private final MatchRepository matchRepository;
+    private final CacheInvalidationService cacheInvalidationService;
 
     public AttackAnalysisServiceImpl(AttackAnalysisRepository attackAnalysisRepository,
-                                     MatchRepository matchRepository) {
+                                     MatchRepository matchRepository,
+                                     CacheInvalidationService cacheInvalidationService) {
         this.attackAnalysisRepository = attackAnalysisRepository;
         this.matchRepository = matchRepository;
+        this.cacheInvalidationService = cacheInvalidationService;
     }
 
     @Override
@@ -61,7 +65,9 @@ public class AttackAnalysisServiceImpl implements AttackAnalysisService {
 
         AttackAnalysis entity = new AttackAnalysis();
         applyDto(entity, dto);
-        return toDto(attackAnalysisRepository.save(entity));
+        AttackAnalysisDTO saved = toDto(attackAnalysisRepository.save(entity));
+        cacheInvalidationService.evictMatchAnalysisCache(saved.getMatchId());
+        return saved;
     }
 
     @Override
@@ -74,15 +80,18 @@ public class AttackAnalysisServiceImpl implements AttackAnalysisService {
         }
 
         applyDto(entity, dto);
-        return toDto(attackAnalysisRepository.save(entity));
+        AttackAnalysisDTO saved = toDto(attackAnalysisRepository.save(entity));
+        cacheInvalidationService.evictMatchAnalysisCache(saved.getMatchId());
+        return saved;
     }
 
     @Override
     public void delete(Long id) {
-        if (!attackAnalysisRepository.existsById(id)) {
-            throw new RuntimeException("AttackAnalysis not found with id: " + id);
-        }
-        attackAnalysisRepository.deleteById(id);
+        AttackAnalysis entity = attackAnalysisRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("AttackAnalysis not found with id: " + id));
+        Long matchId = entity.getMatch() != null ? entity.getMatch().getId() : null;
+        attackAnalysisRepository.delete(entity);
+        cacheInvalidationService.evictMatchAnalysisCache(matchId);
     }
 
     private void applyDto(AttackAnalysis entity, AttackAnalysisDTO dto) {

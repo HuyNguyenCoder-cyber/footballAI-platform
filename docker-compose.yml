@@ -5,7 +5,7 @@ services:
     environment:
       ACCEPT_EULA: "Y"
       MSSQL_PID: "Developer"
-      MSSQL_SA_PASSWORD: "StrongPass!123"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD}"
     command: >
       /bin/bash -c "
       /opt/mssql/bin/sqlservr &
@@ -14,19 +14,35 @@ services:
       until /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q \"SELECT 1\" > /dev/null 2>&1; do
         sleep 2;
       done;
-      /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q \"IF DB_ID('Football_AI') IS NULL CREATE DATABASE [Football_AI];\";
+      /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q \"IF DB_ID('${APP_DATASOURCE_DB}') IS NULL CREATE DATABASE [${APP_DATASOURCE_DB}];\";
       wait $$pid
       "
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q \"IF DB_ID('Football_AI') IS NOT NULL SELECT 1\" > /dev/null 2>&1 || exit 1"]
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q \"IF DB_ID('${APP_DATASOURCE_DB}') IS NOT NULL SELECT 1\" > /dev/null 2>&1 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 20
       start_period: 40s
     ports:
-      - "1433:1433"
+      - "127.0.0.1:${APP_DATASOURCE_PORT:-1433}:1433"
+    restart: unless-stopped
     volumes:
       - sqlserver-data:/var/opt/mssql
+
+  redis:
+    image: redis:7-alpine
+    container_name: football-ai-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "127.0.0.1:${APP_REDIS_PORT:-6379}:6379"
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
 
   app:
     build:
@@ -36,15 +52,28 @@ services:
     depends_on:
       sqlserver:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       APP_DATASOURCE_HOST: "sqlserver"
+      APP_DATASOURCE_PORT: "1433"
+      APP_DATASOURCE_DB: "${APP_DATASOURCE_DB}"
+      APP_DATASOURCE_USERNAME: "${APP_DATASOURCE_USERNAME}"
+      APP_DATASOURCE_PASSWORD: "${APP_DATASOURCE_PASSWORD}"
+      APP_DATASOURCE_ENCRYPT: "${APP_DATASOURCE_ENCRYPT}"
+      APP_DATASOURCE_TRUST_SERVER_CERTIFICATE: "${APP_DATASOURCE_TRUST_SERVER_CERTIFICATE}"
+      APP_REDIS_HOST: "redis"
+      APP_REDIS_PORT: "6379"
       APP_UPLOAD_DIR: "/app/uploads"
+      APP_SECURITY_DEFAULT_ADMIN_USERNAME: "${APP_SECURITY_DEFAULT_ADMIN_USERNAME}"
+      APP_SECURITY_DEFAULT_ADMIN_PASSWORD: "${APP_SECURITY_DEFAULT_ADMIN_PASSWORD}"
     ports:
-      - "8080:8080"
+      - "${APP_PUBLIC_PORT:-8080}:8080"
     volumes:
       - app-uploads:/app/uploads
     restart: unless-stopped
 
 volumes:
   sqlserver-data:
+  redis-data:
   app-uploads:
