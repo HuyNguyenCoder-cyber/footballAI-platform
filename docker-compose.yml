@@ -24,7 +24,7 @@ services:
       retries: 20
       start_period: 40s
     ports:
-      - "127.0.0.1:${APP_DATASOURCE_PORT:-1433}:1433"
+      - "${APP_DATASOURCE_PORT:-1433}:1433"
     restart: unless-stopped
     volumes:
       - sqlserver-data:/var/opt/mssql
