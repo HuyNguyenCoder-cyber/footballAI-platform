@@ -11,6 +11,7 @@ import com.footballplatform.app.service.HomePageService;
 import com.footballplatform.app.service.MatchService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,7 @@ public class HomePageServiceImpl implements HomePageService {
         matches = filterByStatus(matches, status);
         matches = filterByTime(matches, timeFilter);
         matches = filterByKeyword(matches, keyword);
+        matches = sortByMatchTime(matches);
 
         return HomePageDataDTO.builder()
                 .matches(matches)
@@ -161,5 +163,12 @@ public class HomePageServiceImpl implements HomePageService {
 
     private boolean shouldApplyDefaultStatusFilter(MatchStatus status, String timeFilter) {
         return status == null && normalizeTimeFilter(timeFilter) == null;
+    }
+
+    private List<MatchDTO> sortByMatchTime(List<MatchDTO> matches) {
+        return matches.stream()
+                .sorted(Comparator.comparing(MatchDTO::getMatchTime, Comparator.nullsLast(Comparator.naturalOrder()))
+                        .thenComparing(MatchDTO::getId, Comparator.nullsLast(Comparator.naturalOrder())))
+                .toList();
     }
 }
